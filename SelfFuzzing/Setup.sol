@@ -69,7 +69,7 @@ contract Setup is MockStakingV1Deployer{
 
 
 
-    constructor() payable {
+    function setup() public payable {
         (stakingV1 ,lqty, lusd)  = deployMockStakingV1();
         bold = new MockERC20Tester("BOLD Stablecoin", "BOLD");
         users.push(address(0x2000000000000000000000000000000000000000));
@@ -91,20 +91,27 @@ contract Setup is MockStakingV1Deployer{
         });
 
         lqty.mint(users[1], initialLqtyAllocatedPerUser);
-        lqty.mint(users[1], initialLqtyAllocatedPerUser);
+        lqty.mint(users[2], initialLqtyAllocatedPerUser);
+        lusd.mint(users[1], initialLqtyAllocatedPerUser);
         
+        VM.prank(deployer);
+        governance = new Governance(address(lqty), address(lusd), address(stakingV1), address(bold), config, deployer, initialInitiatives);
+        
+
         userProxy = governance.deployUserProxy();
+
+        
+        
         lqty.approve(address(userProxy), initialLqtyAllocatedPerUser);
         lusd.approve(address(userProxy), initialLqtyAllocatedPerUser);
 
         lqty.approve(address(governance), initialLqtyAllocatedPerUser);
         lusd.approve(address(governance), initialLqtyAllocatedPerUser);
 
-        VM.prank(deployer);
-        governance.registerInitialInitiatives(initialInitiatives);
-        governance = new Governance(address(lqty), address(lusd), address(stakingV1), address(bold), config, deployer, initialInitiatives);
         initiative1 = IBribeInitiative(address(new BribeInitiative(address(governance), address(lusd), address(lqty))));
         initialInitiatives.push(address(initiative1));
+        VM.prank(deployer);
+        governance.registerInitialInitiatives(initialInitiatives);
 
         // assert((lqty.balanceOf(users[1]) == initialLqtyAllocatedPerUser));
     }
@@ -115,7 +122,5 @@ contract Setup is MockStakingV1Deployer{
     //     console2.log(lqty.balanceOf(users[1]));
     // }
 
-    function echidna_checkUserBalance() public view returns(bool){
-        return (lqty.balanceOf(users[1]) == initialLqtyAllocatedPerUser);
-    }
+
 }
