@@ -497,7 +497,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
 
         // == Disabled Condition == //
         if (initiativeRegistrationEpoch == UNREGISTERED_INITIATIVE) {
-            return (InitiativeStatus.DISABLED, lastEpochClaim, 0);
+            // return (InitiativeStatus.DISABLED, lastEpochClaim, 0);
             /// By definition it has zero rewards
         }
 

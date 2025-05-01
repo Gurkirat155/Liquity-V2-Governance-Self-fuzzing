@@ -9,3 +9,20 @@ sender: ["0x1000000000000000000000000000000000000000", "0x2000000000000000000000
 balanceContract: 10000000000000000000
 corpusDir: "./SelfFuzzing/corpus"
 cryticArgs: ["--foundry-compile-all"]
+
+filterBlacklist: false
+filterFunctions: [
+  "SelfCryticTester.handler_clampedDepositLqtyUser(uint8,uint256)",
+  "SelfCryticTester.handler_unclampedDepositLqtyUser(uint8,uint256)",
+  "SelfCryticTester.handler_unclampedWithdrawLqtyUser(uint8,uint256)",
+  "SelfCryticTester.handler_clampedWithdrawLqtyUser(uint8,uint256)",
+  "SelfCryticTester.handler_unclampedWithdrawLqty(uint8,uint256)",
+  "SelfCryticTester.handler_claimStakingV1(uint8,uint8)",
+  "SelfCryticTester.handler_makeInitiative()",
+  "SelfCryticTester.handler_resetAllocations(uint8)",
+  "SelfCryticTester.handler_unregisterInitiative(uint8)",
+  "SelfCryticTester.handler_deployUserProxy()",
+  "SelfCryticTester.handler_registerInitiative(uint8)",
+  "SelfCryticTester.handler_snapshotVotesForInitiative(uint8)",
+  "SelfCryticTester.handler_allocateLqty(uint8,uint8,uint256,uint256)"
+]

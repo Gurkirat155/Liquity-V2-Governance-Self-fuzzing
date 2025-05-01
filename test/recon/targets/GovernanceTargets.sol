@@ -69,7 +69,7 @@ abstract contract GovernanceTargets is BaseTargetFunctions, Properties {
             lte(after_global_allocatedLQTY, b4_global_allocatedLQTY, "Alloc can only be strictly decreasing");
         }
     }
-
+    // Remain
     function governance_allocateLQTY_clamped_single_initiative_2nd_user(
         uint8 initiativesIndex,
         uint256 deltaLQTYVotes,
@@ -159,7 +159,7 @@ abstract contract GovernanceTargets is BaseTargetFunctions, Properties {
         (uint256 user_allocatedLQTY,,,) = governance.userStates(user);
 
         require(user_allocatedLQTY != 0);
-
+        // @audit why should it fail as user has some amount of unallocated amount of lqty
         try governance.withdrawLQTY(_lqtyAmount) {
             t(false, "Withdraw Must always revert when user is not reset");
         } catch {}
