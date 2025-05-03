@@ -22,7 +22,8 @@ filterFunctions: [
   "SelfCryticTester.handler_resetAllocations(uint8)",
   "SelfCryticTester.handler_unregisterInitiative(uint8)",
   "SelfCryticTester.handler_deployUserProxy()",
-  "SelfCryticTester.handler_registerInitiative(uint8)",
+  "SelfCryticTester.handler_registerInitiative(uint8,uint8)",
   "SelfCryticTester.handler_snapshotVotesForInitiative(uint8)",
-  "SelfCryticTester.handler_allocateLqty(uint8,uint8,uint256,uint256)"
+  "SelfCryticTester.handler_allocateLqty(uint8,uint8,uint256,uint256)",
+  "SelfCryticTester.handler_secondsWithinEpoch()",
 ]

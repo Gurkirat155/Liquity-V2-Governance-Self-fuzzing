@@ -13,6 +13,8 @@ import {IBribeInitiative} from "../src/interfaces/IBribeInitiative.sol";
 import {BribeInitiative} from "../src/BribeInitiative.sol";
 import {IUserProxy} from "../src/interfaces/IUserProxy.sol";
 import "./utils/utils.sol";
+// import {BaseSetup} from "@chimera/BaseSetup.sol";
+// import {hevm} from "@chimera/Hevm.sol";
 
 
 // echidna . --contract Properties/GovernanceProperties.sol --config config.yaml
@@ -40,11 +42,11 @@ import "./utils/utils.sol";
     //     uint256 epochVotingCutoff;
     // }
 
-contract SelfSetup is MockStakingV1Deployer{
+contract SelfSetup is  MockStakingV1Deployer{
 
     // event Error(string);
 
-    IHevm VM = IHevm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
+    IHevm hevm = IHevm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
 
     MockERC20Tester internal lqty;
     MockERC20Tester internal lusd;
@@ -68,62 +70,14 @@ contract SelfSetup is MockStakingV1Deployer{
     address[] internal deployedInitiatives;
     IBribeInitiative internal initiative1;
     uint256 internal initialLqtyAllocatedPerUser = type(uint88).max;
+    uint256 internal initialBoldAllocatedPerUser = type(uint88).max;
     address internal user1Proxy;
     address internal user2Proxy;
     bool internal user2ProxyCreated;
 
 
-    // struct Vars {
-    //     uint256 epoch;
-    //     mapping(address => IGovernance.InitiativeStatus) initiativeStatus;
-    //     // initiative => user => epoch => claimed
-    //     mapping(address initiative => mapping(address user => mapping(uint256 epoch => bool claimed))) claimedBribeForInitiativeAtEpoch;
-    //     mapping(address user => uint256 lqtyBalance) userLqtyBalance;
-    //     mapping(address user => uint256 lusdBalance) userLusdBalance;
-    // }
 
-    // Vars _before;
-    // Vars _after;
-
-    // function __before(address user) internal {
-    //     uint256 currentEpoch =  governance.epoch();
-    //     _before.epoch = currentEpoch;
-
-    //     for(uint256 i; i< deployedInitiatives.length; i++){
-    //         address initiative = deployedInitiatives[i];
-    //         (IGovernance.InitiativeStatus status, , ) = governance.getInitiativeState(initiative);
-    //         _before.initiativeStatus[initiative] = status;
-
-    //         _before.claimedBribeForInitiativeAtEpoch[initiative][user][currentEpoch] = IBribeInitiative(initiative).claimedBribeAtEpoch(user, currentEpoch);
-    //     }
-
-    //     for(uint256 i; i< users.length;i++){
-    //         _before.userLqtyBalance[users[i]] = lqty.balanceOf(users[i]);
-    //         _before.userLusdBalance[users[i]] = lusd.balanceOf(users[i]);
-    //     }
-
-    // } 
-
-    // function __after(address user) internal {
-    //     uint256 currentEpoch =  governance.epoch();
-    //     _after.epoch = currentEpoch;
-
-    //     for(uint256 i; i< deployedInitiatives.length; i++){
-    //         address initiative = deployedInitiatives[i];
-    //         (IGovernance.InitiativeStatus status, , ) = governance.getInitiativeState(initiative);
-    //         _after.initiativeStatus[initiative] = status;
-
-    //         _after.claimedBribeForInitiativeAtEpoch[initiative][user][currentEpoch] = IBribeInitiative(initiative).claimedBribeAtEpoch(user, currentEpoch);
-    //     }
-
-    //     for(uint256 i; i< users.length;i++){
-    //         _after.userLqtyBalance[users[i]] = lqty.balanceOf(users[i]);
-    //         _after.userLusdBalance[users[i]] = lusd.balanceOf(users[i]);
-    //     }
-    // } 
-
-
-    function setup() internal{
+    function setup() internal {
         (stakingV1 ,lqty, lusd)  = deployMockStakingV1();
         bold = new MockERC20Tester("BOLD Stablecoin", "BOLD");
         users.push(address(0x2000000000000000000000000000000000000000));
@@ -144,28 +98,38 @@ contract SelfSetup is MockStakingV1Deployer{
             epochVotingCutoff: EPOCH_VOTING_CUTOFF
         });
 
+        for(uint256 i; i<users.length; i++){
+            bold.mint(users[i],initialBoldAllocatedPerUser);
+        }
+
+        lqty.mint(users[0], initialLqtyAllocatedPerUser);
         lqty.mint(users[1], initialLqtyAllocatedPerUser);
-        lqty.mint(users[2], initialLqtyAllocatedPerUser);
-        lusd.mint(users[1], initialLqtyAllocatedPerUser);
+        lusd.mint(users[2], initialLqtyAllocatedPerUser);
         
-        VM.prank(deployer);
+        hevm.prank(deployer);
         governance = new Governance(address(lqty), address(lusd), address(stakingV1), address(bold), config, deployer, deployedInitiatives);
         
 
         user1Proxy = governance.deployUserProxy();
+        hevm.prank(users[0]);
+        lqty.approve(address(user1Proxy), type(uint256).max);
+        hevm.prank(users[0]);
+        lusd.approve(address(user1Proxy), type(uint256).max);
 
-        lqty.approve(address(user1Proxy), initialLqtyAllocatedPerUser);
-        lusd.approve(address(user1Proxy), initialLqtyAllocatedPerUser);
+        hevm.prank(users[0]);
+        lqty.approve(address(governance), type(uint256).max);
+        hevm.prank(users[0]);
+        lusd.approve(address(governance), type(uint256).max);
 
-        lqty.approve(address(governance), initialLqtyAllocatedPerUser);
-        lusd.approve(address(governance), initialLqtyAllocatedPerUser);
+
 
         initiative1 = IBribeInitiative(address(new BribeInitiative(address(governance), address(lusd), address(lqty))));
         deployedInitiatives.push(address(initiative1));
-        VM.prank(deployer);
+        hevm.prank(deployer);
         governance.registerInitialInitiatives(deployedInitiatives);
 
         // assert((lqty.balanceOf(users[1]) == initialLqtyAllocatedPerUser));
+        // assert();
     }
 
     function _getRandomUser(uint8 val) internal view returns(address user , address proxy) {
@@ -177,5 +141,7 @@ contract SelfSetup is MockStakingV1Deployer{
     function _getRandomInitiative(uint8 val) internal view returns(address intiative){
         intiative = deployedInitiatives[val % deployedInitiatives.length];
     }
+
+    // function _makeInitiative() internal 
 
 }

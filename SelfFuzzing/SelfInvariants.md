@@ -9,6 +9,67 @@
 9. Make a ghost variables for unregistered intiative
 10. On resetting the allocations the allocated lqty should be zero
 11. After a initiaive wins it bold amt should increase and if it fails than bold doesn't increase
+12. When claimed the from the V1 then the lqty or lusd should increase
 
 NOTE:-
 no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means that `allocatedLqty + unallcoatedLqty` both where as `governance.userStates[randomUser].allocatedLQTY` means only allocated lqty.
+
+#### Coverage Improved
+- claimFromStakingV1()
+- withdrawLQTY
+- depositLQTY
+- registerInitiative (First let the users have bold so he could transfer the registration fee)
+
+
+#### Coverage remaining 
+- secondsWithinEpoch() 
+- getLatestVotingThreshold
+- calculateVotingThreshold
+- Via Permit Withdraw and deposit
+- getInitiativeState() is not properly covered (coverage not full for this function)
+- _resetInitiatives()
+- resetAllocations
+- allocateLQTY not covered at all
+- claimForInitiative not covered at all
+
+
+#### Functions remaining 
+- make handler_makeInitiative which makes a random initiatives
+
+# Test All handlers with foundry
+# Increase the invariants
+
+## Learnings
+- *Before the coverage was not increasing so i debugged my handlers with foundry which i didn't knew before so changed the token approve type(uint256).max*
+- for  `registerInitiative` not working, edited the from `handler_registerInitiative(uint8)` to `handler_registerInitiative(uint8,uint8)` in the config.yaml blacklist that's why it wasn't getting covered in the 
+and also had to edit the handler itself approving of the token was missing and also the msg.sender who is approving that was not being passed.
+
+changed the handler from 
+``` Solidity
+    function handler_registerInitiative(uint8 initiativeIndex) public {
+        address initiative = _getRandomInitiative(initiativeIndex);
+        if(deployedInitiatives.length < 1) return;
+        __before(users[0]);
+        governance.registerInitiative(initiative);
+        __after(users[0]);
+    }
+```    
+
+to
+``` Solidity
+    function handler_registerInitiative(uint8 userIndex, uint8 initiativeIndex) public {
+        (address randomUser,) = _getRandomUser(userIndex);
+        address initiative = _getRandomInitiative(initiativeIndex);
+
+        // if(initiative == deployedInitiatives[0] ) return;
+        if(deployedInitiatives.length < 1) return;
+
+        __before(users[0]);
+        hevm.prank(randomUser);
+        bold.approve(address(governance), type(uint256).max);
+        hevm.prank(randomUser);
+        governance.registerInitiative(initiative);
+        __after(users[0]);
+    }
+```  
+

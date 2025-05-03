@@ -505,6 +505,20 @@ abstract contract GovernanceTest is Test {
         uint256 atEpoch = governance.registeredInitiatives(baseInitiative3);
         assertEq(atEpoch, governance.epoch());
 
+        (IGovernance.InitiativeStatus status, uint256 lastEpochClaim, uint256 claimableAmount) =
+            governance.getInitiativeState(baseInitiative3);
+        console.log("This is the status of initiative1 ",uint256(status));
+        console.log("This is the lastEpochClaim of initiative1 ",lastEpochClaim);
+        console.log("This is the claimableAmount of initiative1 ",lastEpochClaim);
+
+        (uint256 epochRegistrationOfInitiative1) = governance.registeredInitiatives(baseInitiative3);
+
+        console.log("This is the status of initiative1 ",uint256(status));
+        console.log("This is the lastEpochClaim of initiative1 ",lastEpochClaim);
+        console.log("This is the claimableAmount of initiative1 ",lastEpochClaim);
+        console.log("This is the current epoch",governance.epoch());
+        console.log("This is the epoch where initiative1 was registered",epochRegistrationOfInitiative1);
+
         // should revert if the initiative was already registered
         vm.expectRevert("Governance: initiative-already-registered");
         governance.registerInitiative(baseInitiative3);
@@ -537,6 +551,38 @@ abstract contract GovernanceTest is Test {
         initiatives[0] = baseInitiative1;
         governance.registerInitialInitiatives(initiatives);
 
+// --------Initiative 1
+        (IGovernance.InitiativeStatus beforeStatus1, uint256 lastEpochClaim1, uint256 claimableAmount1 ) =
+            governance.getInitiativeState(baseInitiative1);
+        console.log("This is the beforeStatus1 of before registration baseInitiative1 ",uint256(beforeStatus1));
+        console.log("This is the lastEpochClaim1 of baseInitiative1 ",lastEpochClaim1);
+        console.log("This is the claimableAmount1 of baseInitiative1 ",claimableAmount1);
+
+        // (uint256 epochRegistrationOfInitiative1) = governance.registeredInitiatives(baseInitiative1);
+
+        // (IGovernance.InitiativeStatus afterStatus1 , ,) =
+        //     governance.getInitiativeState(baseInitiative1);
+
+        // console.log("This is the afterStatus1 of after initial registration of the owner baseInitiative1 ",uint256(afterStatus1));
+        // console.log("This is the current epoch",governance.epoch());
+        // console.log("This is the epoch where baseInitiative1 was registered",epochRegistrationOfInitiative1);
+
+// --------Initiative 2 
+        (IGovernance.InitiativeStatus beforeStatus2, uint256 lastEpochClaim2, uint256 claimableAmount2) =
+            governance.getInitiativeState(baseInitiative2);
+        console.log("This is the beforeStatus2 of before registration baseInitiative2 ",uint256(beforeStatus2));
+        console.log("This is the lastEpochClaim2 of baseInitiative2 ",lastEpochClaim2);
+        console.log("This is the claimableAmount2 of baseInitiative2 ",claimableAmount2);
+
+        (uint256 epochRegistrationOfInitiative2) = governance.registeredInitiatives(baseInitiative2);
+
+        (IGovernance.InitiativeStatus afterStatus2 , ,) =
+            governance.getInitiativeState(baseInitiative2);
+
+        console.log("This is the afterStatus of after initial registration of the owner for  baseInitiative1 ",uint256(afterStatus2));
+        console.log("This is the current epoch",governance.epoch());
+        console.log("This is the epoch where baseInitiative2 was registered",epochRegistrationOfInitiative2);
+
         // Send user enough LUSD to register a new initiative
         vm.prank(lusdHolder);
         lusd.transfer(user, REGISTRATION_FEE);
@@ -564,6 +610,18 @@ abstract contract GovernanceTest is Test {
             governance.registerInitiative(baseInitiative2);
         }
         vm.stopPrank();
+
+        (IGovernance.InitiativeStatus afterStatus2Manually , ,) =
+            governance.getInitiativeState(baseInitiative2);
+
+        console.log("This is the afterStatus of after initial registration of the manually baseInitiative2 ",uint256(afterStatus2Manually));
+        console.log("This is the current epoch",governance.epoch());
+
+
+        (IGovernance.InitiativeStatus afterStatus1Manually , ,) =
+            governance.getInitiativeState(baseInitiative1);
+        
+        console.log("This is the afterStatus of initiative 1 after initial registration of the manually baseInitiative2 ",uint256(afterStatus1Manually));
 
         governance.claimForInitiative(baseInitiative1);
         assertEqDecimal(lusd.balanceOf(baseInitiative1), 0, 18, "baseInitiative1 shouldn't have received LUSD yet");

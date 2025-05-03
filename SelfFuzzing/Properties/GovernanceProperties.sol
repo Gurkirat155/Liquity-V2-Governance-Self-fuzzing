@@ -51,5 +51,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter {
 
     // }
 
+    
+
 }
 // View functions should never revert 

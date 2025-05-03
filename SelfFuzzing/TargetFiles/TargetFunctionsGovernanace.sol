@@ -3,9 +3,13 @@ pragma solidity ^0.8.24;
 
 // import {Setup} from "../Setup.sol";
 import "../Properties/GovernanceProperties.sol";
+// import {hevm} from "@chimera/Hevm.sol";
+// import {BaseTargetFunctions} from "@chimera/BaseTargetFunctions.sol";
+import {Test,console} from "forge-std/Test.sol";
 
 
-abstract contract TargetFunctionsGovernanace is GovernanceProperties{
+// contract TargetFunctionsGovernanace is BaseTargetFunctions, GovernanceProperties{
+contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
     
     event Error(string);
 
@@ -33,31 +37,38 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
     // }
 
     function handler_clampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
-        (address randomUser,) = _getRandomUser(userIndex);
+        (address randomUser,address proxy) = _getRandomUser(userIndex);
         __before(randomUser);
-        if(randomUser == users[2] && user2ProxyCreated){
-            VM.prank(randomUser);
+        if(randomUser == users[1] && user2ProxyCreated == false){
+            hevm.prank(randomUser);
             try governance.deployUserProxy()  returns (address proxyAdd) {
                 user2Proxy = proxyAdd;
-                lqty.approve(user2Proxy,lqtyAmt);
+                hevm.prank(randomUser);
+                lqty.approve(proxyAdd, type(uint256).max);
                 user2ProxyCreated = true;
             } catch  {
                 emit Error("User 2 proxy didn't deploy");
             }
         }
-        else{
-            VM.prank(randomUser);
-            governance.depositLQTY(lqtyAmt % lqty.balanceOf(randomUser));
-        }
+
+        lqtyAmt %= lqty.balanceOf(randomUser);
+        hevm.prank(randomUser);
+        lqty.approve(proxy, type(uint256).max);
+        hevm.prank(randomUser);
+        governance.depositLQTY(lqtyAmt);
+        // governance.depositLQTY(lqtyAmt,false,randomUser);
+
         /// @audit Add amount to allocated ghost variable 
         __after(randomUser);
     } 
 
     // @doubt since the `depositLQTY` function already calls `_increaseUserVoteTrackers` in that function deployes a userproxy when the user hasn't deployed it yet then above `handler_clampedDepositLqtyUser` function becomes invalid.
     function handler_unclampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
-        (address randomUser,) = _getRandomUser(userIndex);
+        (address randomUser, address proxy) = _getRandomUser(userIndex);
         __before(randomUser);
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
+        lqty.approve(proxy, type(uint256).max);
+        hevm.prank(randomUser);
         governance.depositLQTY(lqtyAmt);
         __after(randomUser);
         /// @audit Add amount to allocated ghost variable 
@@ -66,7 +77,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
     function handler_unclampedWithdrawLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser,) = _getRandomUser(userIndex);
         __before(randomUser);
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         governance.withdrawLQTY(lqtyAmt);
         __after(randomUser);
         /// @audit Add amount to unallocated ghost variable minus that so that we could compare in the invariant that we'll define in properties.
@@ -85,7 +96,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
             return;
         }
 
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         try governance.resetAllocations(deployedInitiatives, true){
             
         } catch  {
@@ -94,7 +105,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
         
         lqtyAmt %= userStakedLqty;
 
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         governance.withdrawLQTY(lqtyAmt);
         __after(randomUser);
     }
@@ -111,7 +122,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
 
         lqtyAmt %= userStakedUnallocatedLqty;
 
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         governance.withdrawLQTY(lqtyAmt);
         __after(randomUser);
     }
@@ -123,7 +134,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
         __before(randomUser);
         (address msgSenderAdd,) = _getRandomUser(msgSender);
 
-        VM.prank(msgSenderAdd);
+        hevm.prank(msgSenderAdd);
         try governance.claimFromStakingV1(randomUser) {
             
         } catch  {
@@ -132,7 +143,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
         __after(randomUser);
     }
 
-    function handler_makeInitiative() public {
+    function handler_makeInitiative() public {    
         address initiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
         deployedInitiatives.push(initiative);
     }
@@ -141,7 +152,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
         (address randomUser, ) = _getRandomUser(userIndex);
         __before(randomUser);
 
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         governance.resetAllocations(deployedInitiatives, true);
         __after(randomUser);
     }
@@ -159,12 +170,28 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
         __after(users[0]);
     }
 
-    function handler_registerInitiative(uint8 initiativeIndex) public {
+    function handler_registerInitiative(uint8 userIndex, uint8 initiativeIndex) public {
+        (address randomUser,) = _getRandomUser(userIndex);
         address initiative = _getRandomInitiative(initiativeIndex);
+
+        // if(initiative == deployedInitiatives[0] ) return;
+        if(deployedInitiatives.length < 1) return;
+
         __before(users[0]);
+        hevm.prank(randomUser);
+        bold.approve(address(governance), type(uint256).max);
+        hevm.prank(randomUser);
         governance.registerInitiative(initiative);
         __after(users[0]);
     }
+
+    // function handler_registerInitiative(uint8 initiativeIndex) public {
+    //     address initiative = _getRandomInitiative(initiativeIndex);
+    //     if(deployedInitiatives.length < 1) return;
+    //     __before(users[0]);
+    //     governance.registerInitiative(initiative);
+    //     __after(users[0]);
+    // }
 
     function handler_snapshotVotesForInitiative(uint8 initiativeIndex) public {
         address initiative = _getRandomInitiative(initiativeIndex);
@@ -180,7 +207,7 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
     //     For user 1 and user 2 
     function handler_allocateLqty(uint8 userIndex, uint8 initiativeIndex, uint256 votesLqty, uint256 vetosLqty) public  {
         (address randomUser, address proxy ) = _getRandomUser(userIndex);
-
+        __before(randomUser);
         uint256 stakedLqty = IUserProxy(proxy).staked();
         address initiative = _getRandomInitiative(initiativeIndex);
         (uint256 votes ,, uint256 vetos ,,) = governance.lqtyAllocatedByUserToInitiative(randomUser,initiative);
@@ -202,10 +229,20 @@ abstract contract TargetFunctionsGovernanace is GovernanceProperties{
 
         require(totalLqty > 0 &&  totalLqty <= int256(stakedLqty));
 
-        VM.prank(randomUser);
+        hevm.prank(randomUser);
         governance.allocateLQTY(initiativeToReset, initiatives, votesLqtyAllocated, vetosLqtyAllocated);
+        __after(randomUser);
     }
 
+    function handler_secondsWithinEpoch() public {
+        __before(users[0]);
+        governance.secondsWithinEpoch();
+        __after(users[0]);
+    }
+
+    // function handler_makeInitiative() public {
+    //     address initiative = new BribeInitiative(address(governance), address(bold), address(lqty));
+    // }
 
     // 1. Deposit user1,2 should they be clubbed into one or two one is ok
     // BUT WHY HAVE THEY DEPLOYED USER PROXY AND THEN USED DEPOSIT LQTY IN THE HANDLER, SINCE IN THE `depositLQTY` function it already calls and deployed a userproxy if someone who hasn't deposited any lqty
