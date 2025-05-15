@@ -497,7 +497,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
 
         // == Disabled Condition == //
         if (initiativeRegistrationEpoch == UNREGISTERED_INITIATIVE) {
-            // return (InitiativeStatus.DISABLED, lastEpochClaim, 0);
+            return (InitiativeStatus.DISABLED, lastEpochClaim, 0);
             /// By definition it has zero rewards
         }
 
@@ -959,6 +959,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
             getInitiativeState(_initiative, votesSnapshot_, votesForInitiativeSnapshot_, initiativeState);
 
         if (status != InitiativeStatus.CLAIMABLE) {
+            // revert("The initiative is not yet claimble ");
             return 0;
         }
 

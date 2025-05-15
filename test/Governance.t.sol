@@ -484,7 +484,7 @@ abstract contract GovernanceTest is Test {
         vm.startPrank(user);
 
         lusd.approve(address(governance), 2e18);
-
+        console.log("this is the lqty staked before getting an revert", UserProxy(payable(userProxy)).staked());
         // should revert if the registrant doesn't have enough voting power
         vm.expectRevert("Governance: insufficient-lqty");
         governance.registerInitiative(baseInitiative3);
@@ -497,6 +497,7 @@ abstract contract GovernanceTest is Test {
         governance.depositLQTY(1e18);
         vm.warp(block.timestamp + EPOCH_DURATION);
 
+        console.log("this is the lqty staked after staking", UserProxy(payable(userProxy)).staked());
         // should revert if `_initiative` is zero
         vm.expectRevert("Governance: zero-address");
         governance.registerInitiative(address(0));
@@ -1390,8 +1391,17 @@ abstract contract GovernanceTest is Test {
         address userProxy = governance.deployUserProxy();
 
         lqty.approve(address(userProxy), 1000e18);
+        console.log("Balance of the user before deposit",lqty.balanceOf(user));
         governance.depositLQTY(1000e18);
-
+        // 309485009821345048724781055
+        // 1000000000000000000000
+        // 10000000000000000000000
+        // 9000000000000000000000
+        console.log("Balance of the user after deposit",lqty.balanceOf(user));
+        console.log("Bold accured till now", governance.boldAccrued());
+        console.log("Lusd accured till now", lusd.balanceOf(address(governance)));
+        address userProxyAdd = governance.deriveUserProxyAddress(user);
+        console.log("this is the user staked lqty", UserProxy(payable(userProxyAdd)).staked());
         vm.warp(block.timestamp + governance.EPOCH_DURATION());
 
         vm.stopPrank();
@@ -1399,6 +1409,8 @@ abstract contract GovernanceTest is Test {
         vm.startPrank(lusdHolder);
         lusd.transfer(address(governance), 10000e18);
         vm.stopPrank();
+        console.log("Bold accured till now", governance.boldAccrued());
+        console.log("Lusd accured till now", lusd.balanceOf(address(governance)));
 
         vm.startPrank(user);
 

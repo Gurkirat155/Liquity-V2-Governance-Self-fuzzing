@@ -10,6 +10,8 @@
 10. On resetting the allocations the allocated lqty should be zero
 11. After a initiaive wins it bold amt should increase and if it fails than bold doesn't increase
 12. When claimed the from the V1 then the lqty or lusd should increase
+13. Users should not be allowed to register before 2 epochs `Governance: registration-not-yet-enabled`
+14. Users should not be able register initiative 
 
 NOTE:-
 no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means that `allocatedLqty + unallcoatedLqty` both where as `governance.userStates[randomUser].allocatedLQTY` means only allocated lqty.
@@ -19,10 +21,11 @@ no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means
 - withdrawLQTY
 - depositLQTY
 - registerInitiative (First let the users have bold so he could transfer the registration fee)
+- secondsWithinEpoch() 
 
 
 #### Coverage remaining 
-- secondsWithinEpoch() 
+
 - getLatestVotingThreshold
 - calculateVotingThreshold
 - Via Permit Withdraw and deposit
@@ -31,6 +34,12 @@ no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means
 - resetAllocations
 - allocateLQTY not covered at all
 - claimForInitiative not covered at all
+- getTotalVotesAndState handler missing
+- handler_unclampedDepositLqtyUser
+- handler_unclampedWithdrawLqty()
+- handler_resetAllocations
+- handler_allocateLqty
+- handler_deployUserProxy()
 
 
 #### Functions remaining 
@@ -40,6 +49,7 @@ no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means
 # Increase the invariants
 
 ## Learnings
+- // Ok so derieved address is equal to userproxy contract address
 - *Before the coverage was not increasing so i debugged my handlers with foundry which i didn't knew before so changed the token approve type(uint256).max*
 - for  `registerInitiative` not working, edited the from `handler_registerInitiative(uint8)` to `handler_registerInitiative(uint8,uint8)` in the config.yaml blacklist that's why it wasn't getting covered in the 
 and also had to edit the handler itself approving of the token was missing and also the msg.sender who is approving that was not being passed.

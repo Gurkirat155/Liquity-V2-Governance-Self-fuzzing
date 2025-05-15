@@ -1,40 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-// import {Setup} from "../Setup.sol";
 import "../Properties/GovernanceProperties.sol";
-// import {hevm} from "@chimera/Hevm.sol";
-// import {BaseTargetFunctions} from "@chimera/BaseTargetFunctions.sol";
-import {Test,console} from "forge-std/Test.sol";
+// import {Test,console} from "forge-std/Test.sol";
 
 
 // contract TargetFunctionsGovernanace is BaseTargetFunctions, GovernanceProperties{
-contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
+// contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
+contract TargetFunctionsGovernanace is GovernanceProperties{
     
-    event Error(string);
-
-    // 1. first make view functions 
-    // 2. then make the main functions withdraw deposit, allcate claim etc
-
-    // Jot down view functions
-    // epoch()
-    // epochStart()
-    // secondsWithinEpoch()
-    // getLatestVotingThreshold()
-    // calculateVotingThreshold(uint256 _votes)
-    // getTotalVotesAndState()
-    // getInitiativeSnapshotAndState(address _initiative)
-    // getInitiativeState( address _initiative, VoteSnapshot memory _votesSnapshot, InitiativeVoteSnapshot memory       _votesForInitiativeSnapshot, InitiativeState memory _initiativeState)
-
-
-    // function handler_epoch()
-    // Some users must have lqty and some might not so that we could also get a revert from the function
-    // 1. Push some users address and give them some lqty
-
-    // @audit this should be in selfCryticTester
-    // constructor() payable{
-    //     setup();
-    // }
+    
 
     function handler_clampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser,address proxy) = _getRandomUser(userIndex);
@@ -110,7 +85,8 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
         __after(randomUser);
     }
 
-    function handler_unclampedWithdrawLqty(uint8 userIndex, uint256 lqtyAmt) public {
+    // This below function was created so that user could withdraw it's unallocated Lqty.
+    function handler_unclampedWithdrawUnallocatedLqty(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser,) = _getRandomUser(userIndex);
         __before(randomUser);
         (uint256 userStakedUnallocatedLqty,,, ) = governance.userStates(randomUser);
@@ -185,13 +161,6 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
         __after(users[0]);
     }
 
-    // function handler_registerInitiative(uint8 initiativeIndex) public {
-    //     address initiative = _getRandomInitiative(initiativeIndex);
-    //     if(deployedInitiatives.length < 1) return;
-    //     __before(users[0]);
-    //     governance.registerInitiative(initiative);
-    //     __after(users[0]);
-    // }
 
     function handler_snapshotVotesForInitiative(uint8 initiativeIndex) public {
         address initiative = _getRandomInitiative(initiativeIndex);
@@ -200,11 +169,6 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
         __after(users[0]);
     }
 
-    //     address[] calldata _initiativesToReset,
-    //     address[] calldata _initiatives,
-    //     int256[] calldata _absoluteLQTYVotes,
-    //     int256[] calldata _absoluteLQTYVetos
-    //     For user 1 and user 2 
     function handler_allocateLqty(uint8 userIndex, uint8 initiativeIndex, uint256 votesLqty, uint256 vetosLqty) public  {
         (address randomUser, address proxy ) = _getRandomUser(userIndex);
         __before(randomUser);
@@ -214,15 +178,15 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
         address[] memory initiativeToReset ;
         if(votes !=0 || vetos !=0){
             initiativeToReset = new address[](1);
-            initiativeToReset[1] = initiative;
+            initiativeToReset[0] = initiative;
         }
-        address[] memory initiatives;
+        address[] memory initiatives = new address[](1);
         initiatives[0] = initiative;
 
-        int256[] memory votesLqtyAllocated;
+        int256[] memory votesLqtyAllocated = new int256[](1);
         votesLqtyAllocated[0] = int256(votesLqty % stakedLqty);
 
-        int256[] memory vetosLqtyAllocated;
+        int256[] memory vetosLqtyAllocated = new int256[](1);
         vetosLqtyAllocated[0] = int256(vetosLqty % stakedLqty);
 
         int256 totalLqty = votesLqtyAllocated[0] + vetosLqtyAllocated[0];
@@ -234,11 +198,62 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
         __after(randomUser);
     }
 
-    function handler_secondsWithinEpoch() public {
+    // claimForInitiative(address _initiative)
+    // should this be a handler or an echidna invariant 
+    function handler_claimForInitiative(uint8 initiativeIndex) public {
+        address initiative = _getRandomInitiative(initiativeIndex);
         __before(users[0]);
-        governance.secondsWithinEpoch();
+        // uint256 initiativeInitialBoldBalance = bold.balanceOf(initiative);
+        governance.claimForInitiative(initiative);
+        // try governance.claimForInitiative(initiative)  {
+        // }catch {
+        //     emit Error("Initiative wasn't able claim the bold");
+        // }
         __after(users[0]);
     }
+
+    // function handler_getLatestVotingThreshold() public view returns(uint256 votingThreshold) {
+    //     votingThreshold = governance.getLatestVotingThreshold();
+    // }
+    function handler_getLatestVotingThreshold() public view {
+        governance.getLatestVotingThreshold();
+        // try governance.getLatestVotingThreshold() returns (uint256) {
+        // } catch  {
+        //     emit Error("Voting threshold is not being called");
+        // }
+    }
+
+    function handler_callBoldAccured() public view{
+        governance.boldAccrued();
+        // try governance.boldAccrued() returns (uint256) {
+        // } catch  {
+        //     emit Error("Bold Accured state variable is not being called");
+        // }
+    }
+
+}
+
+
+
+
+    // function handler_registerInitiative(uint8 initiativeIndex) public {
+    //     address initiative = _getRandomInitiative(initiativeIndex);
+    //     if(deployedInitiatives.length < 1) return;
+    //     __before(users[0]);
+    //     governance.registerInitiative(initiative);
+    //     __after(users[0]);
+    // }
+
+    // function handler_secondsWithinEpoch() public {
+    //     __before(users[0]);
+    //     governance.secondsWithinEpoch();
+    //     __after(users[0]);
+    // }
+
+    // function handler_epoch() public {
+    //     governance.epoch();
+    // }
+
 
     // function handler_makeInitiative() public {
     //     address initiative = new BribeInitiative(address(governance), address(bold), address(lqty));
@@ -261,4 +276,22 @@ contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
     // 9. MAke reset allocation
     // 10. Make users a new intitative handler
 
-}
+
+
+// ---------------------- this is invariant 
+    // function handler_claimForInitiative(uint8 initiativeIndex) public returns(bool){
+    //     address initiative = _getRandomInitiative(initiativeIndex);
+    //     __before(users[0]);
+    //     uint256 initiativeInitialBoldBalance = bold.balanceOf(initiative);
+    //     try governance.claimForInitiative(initiative) returns(uint256 claimableAmount) {
+    //         // claimableAmount ;
+    //         uint256 initiativeFinalBoldBalance = bold.balanceOf(initiative);
+            
+    //         return (initiativeFinalBoldBalance == initiativeInitialBoldBalance + claimableAmount);
+    //     }catch {
+    //         emit Error("Initiative wasn't able claim the bold");
+    //         return false;
+    //     }
+    //     __after(users[0]);
+    //     return true;
+    // }

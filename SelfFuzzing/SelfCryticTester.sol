@@ -11,8 +11,4 @@ contract SelfCryticTester is TargetFunctionsGovernanace {
     constructor() payable{
         setup();
     }
-
-    // function test_registerInitiative() public {
-
-    // }
 }

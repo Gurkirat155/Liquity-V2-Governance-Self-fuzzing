@@ -1,7 +1,7 @@
 # Allow fuzzer to use public/external functions from all contracts
 allContracts: false
 # testMode : assertion
-testLimit: 100000
+testLimit: 1000000
 
 # specify address to use for fuzz transations
 # limit this to the allowed voting addresses
@@ -16,7 +16,7 @@ filterFunctions: [
   "SelfCryticTester.handler_unclampedDepositLqtyUser(uint8,uint256)",
   "SelfCryticTester.handler_unclampedWithdrawLqtyUser(uint8,uint256)",
   "SelfCryticTester.handler_clampedWithdrawLqtyUser(uint8,uint256)",
-  "SelfCryticTester.handler_unclampedWithdrawLqty(uint8,uint256)",
+  "SelfCryticTester.handler_unclampedWithdrawUnallocatedLqty(uint8,uint256)",
   "SelfCryticTester.handler_claimStakingV1(uint8,uint8)",
   "SelfCryticTester.handler_makeInitiative()",
   "SelfCryticTester.handler_resetAllocations(uint8)",
@@ -26,4 +26,8 @@ filterFunctions: [
   "SelfCryticTester.handler_snapshotVotesForInitiative(uint8)",
   "SelfCryticTester.handler_allocateLqty(uint8,uint8,uint256,uint256)",
   "SelfCryticTester.handler_secondsWithinEpoch()",
+  "SelfCryticTester.handler_claimForInitiative(uint8)",
+  "SelfCryticTester.handler_getLatestVotingThreshold()",
+  "SelfCryticTester.handler_callBoldAccured()",
+  # "Governance.getLatestVotingThreshold()",  
 ]

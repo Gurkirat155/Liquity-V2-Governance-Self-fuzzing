@@ -44,7 +44,7 @@ import "./utils/utils.sol";
 
 contract SelfSetup is  MockStakingV1Deployer{
 
-    // event Error(string);
+    event Error(string);
 
     IHevm hevm = IHevm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
 
@@ -62,6 +62,8 @@ contract SelfSetup is  MockStakingV1Deployer{
     uint128 private constant VOTING_THRESHOLD_FACTOR = 0.03e18;
     uint88 private constant MIN_CLAIM = 500e18;
     uint88 private constant MIN_ACCRUAL = 1000e18;
+    // 1000000000000000000000
+    // 100000000000000000000;
     uint32 private constant EPOCH_DURATION = 604800; // 7 days
     uint32 private constant EPOCH_VOTING_CUTOFF = 518400;  // 6 days
 
@@ -109,7 +111,7 @@ contract SelfSetup is  MockStakingV1Deployer{
         hevm.prank(deployer);
         governance = new Governance(address(lqty), address(lusd), address(stakingV1), address(bold), config, deployer, deployedInitiatives);
         
-
+        hevm.prank(users[0]);
         user1Proxy = governance.deployUserProxy();
         hevm.prank(users[0]);
         lqty.approve(address(user1Proxy), type(uint256).max);
