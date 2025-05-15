@@ -126,7 +126,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     //     governance.votesSnapshot.forEpoch = _votesSnapshot.forEpoch;
     // }
 
-    function echdina_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
+    function echidna_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
         (uint256 votes, uint256 epoch) = governance.votesSnapshot();
 
         // require(votes > 0, "votes count currently zero");
