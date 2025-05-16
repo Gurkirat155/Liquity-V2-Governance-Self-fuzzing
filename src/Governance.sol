@@ -308,6 +308,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
     /// @inheritdoc IGovernance
     // This returns the exact timestamp when the current epoch started.
     function epochStart() public view returns (uint256) {
+        // revert("Reverting epoch start with error");
         return EPOCH_START + (epoch() - 1) * EPOCH_DURATION;
     }
 
@@ -489,7 +490,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
 
         // == Just Registered Condition == //
         if (initiativeRegistrationEpoch == currentEpoch) {
-            return (InitiativeStatus.WARM_UP, 0, 0);
+            // return (InitiativeStatus.WARM_UP, 0, 0);
             /// Was registered this week, cannot have rewards
         }
 

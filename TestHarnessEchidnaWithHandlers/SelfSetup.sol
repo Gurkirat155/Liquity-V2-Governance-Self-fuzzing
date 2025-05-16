@@ -11,16 +11,13 @@ import {IBribeInitiative} from "../src/interfaces/IBribeInitiative.sol";
 import {BribeInitiative} from "../src/BribeInitiative.sol";
 import {IUserProxy} from "../src/interfaces/IUserProxy.sol";
 import "./utils/utils.sol";
-// import {BeforeAfter} from "./BeforeAfter.sol";
+import {BeforeAfter} from "./BeforeAfter.sol";
 
 
   
-contract SelfSetup is  MockStakingV1Deployer {
+contract SelfSetup is  MockStakingV1Deployer{
 
-    event Error(bytes);
-
-
-    
+    event Error(string);
 
     IHevm hevm = IHevm(address(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D));
 
@@ -54,9 +51,6 @@ contract SelfSetup is  MockStakingV1Deployer {
 
     uint256 internal timeStampWhenContractWasCreated;
 
-    constructor () payable {
-        setup();
-    }
     
     function setup() internal {
         (stakingV1 ,lqty, lusd)  = deployMockStakingV1();
@@ -113,16 +107,25 @@ contract SelfSetup is  MockStakingV1Deployer {
 
     }
 
+    function _getRandomUser(uint8 val) internal view returns(address user , address proxy) {
+        // return users[val % users.length];
+        user = users[val % users.length];
+        proxy = governance.deriveUserProxyAddress(user);
+    }
 
-    function echidna_epochStartShouldNotRevert() public returns(bool){
+    function _getRandomInitiative(uint8 val) internal view returns(address intiative){
+        intiative = deployedInitiatives[val % deployedInitiatives.length];
+    }
 
-        try governance.epochStart() returns(uint256 currentTime) {
-            // Commenting out below line making it harcoded false
-            // return true; 
-        } catch (bytes memory err)  {
-            emit  Error(err);
+    function echidna_epochShouldNotRevert() public returns(bool){
+
+        try governance.epoch() returns(uint256 currentTime) {
+            return true;
+        } catch  {
+            emit Error("Epoch should not revert");
             return false;
         }
 
     }
+
 }

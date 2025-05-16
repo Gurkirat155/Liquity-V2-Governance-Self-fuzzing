@@ -1,0 +1,34 @@
+# Allow fuzzer to use public/external functions from all contracts
+allContracts: false
+# testMode : assertion
+testLimit: 100000
+
+# specify address to use for fuzz transations
+# limit this to the allowed voting addresses
+sender: ["0x1000000000000000000000000000000000000000", "0x2000000000000000000000000000000000000000", "0x3000000000000000000000000000000000000000", "0x4000000000000000000000000000000000000000", "0x5000000000000000000000000000000000000000","0x6000000000000000000000000000000000000000"]
+balanceContract: 10000000000000000000
+corpusDir: "./TestHarnessEchidnaWithHandlers/corpusTesting"
+cryticArgs: ["--foundry-compile-all"]
+
+
+filterBlacklist: false
+filterFunctions: [
+  "EchidnaTesting.handler_clampedDepositLqtyUser(uint8,uint256)",
+  "EchidnaTesting.handler_unclampedDepositLqtyUser(uint8,uint256)",
+  "EchidnaTesting.handler_unclampedWithdrawLqtyUser(uint8,uint256)",
+  "EchidnaTesting.handler_clampedWithdrawLqtyUser(uint8,uint256)",
+  "EchidnaTesting.handler_unclampedWithdrawUnallocatedLqty(uint8,uint256)",
+  "EchidnaTesting.handler_claimStakingV1(uint8,uint8)",
+  "EchidnaTesting.handler_makeInitiative()",
+  "EchidnaTesting.handler_resetAllocations(uint8)",
+  "EchidnaTesting.handler_unregisterInitiative(uint8)",
+  "EchidnaTesting.handler_deployUserProxy()",
+  "EchidnaTesting.handler_registerInitiative(uint8,uint8)",
+  "EchidnaTesting.handler_snapshotVotesForInitiative(uint8)",
+  "EchidnaTesting.handler_allocateLqty(uint8,uint8,uint256,uint256)",
+  "EchidnaTesting.handler_secondsWithinEpoch()",
+  "EchidnaTesting.handler_claimForInitiative(uint8)",
+  "EchidnaTesting.handler_getLatestVotingThreshold()",
+  "EchidnaTesting.handler_callBoldAccured()",
+  # "Governance.getLatestVotingThreshold()",  
+]
