@@ -301,6 +301,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
     // returns current epoch number 
     // This function tells us which epoch we are currently in.
     function epoch() public view returns (uint256) {
+        // revert();
         return ((block.timestamp - EPOCH_START) / EPOCH_DURATION) + 1;
     }
 
