@@ -15,3 +15,7 @@ docs/
 crytic-export/
 echidna/
 medusa/
+
+# Fuzzing Test files
+TestHarnessEchidna/
+TestHarnessEchidnaWithHandlers/

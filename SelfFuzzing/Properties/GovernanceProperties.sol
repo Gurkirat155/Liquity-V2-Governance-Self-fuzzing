@@ -16,6 +16,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     event DebugNumbers(string,uint256);
     event DebugPath(string);
     event ErrorBytes(string,bytes);
+    event VotesAndEpcoh(uint256, uint256);
     
 
     function echidna_initiativeShouldReturnSameStatus() public returns(bool){
@@ -49,10 +50,6 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
         }
         return true;
     }
-
-    // function echidna_offSetShouldIncrease() public {
-
-    // }
 
     /* ------------------------commenting out revert properties for the fuzzer to function better
     ---------------------------------------------------------------------------------------------
@@ -121,47 +118,51 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     /* ------------------------commenting out revert properties for the fuzzer to function better
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
-    // function tester_setVotesSnapshot(IGovernance.VoteSnapshot calldata _votesSnapshot) external {
-    //     governance.votesSnapshot.votes = _votesSnapshot.votes;
-    //     governance.votesSnapshot.forEpoch = _votesSnapshot.forEpoch;
-    // }
+
+
+    // function echidna_offSetShouldIncrease() public returns(bool) {}
 
     function echidna_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
         (uint256 votes, uint256 epoch) = governance.votesSnapshot();
 
         // require(votes > 0, "votes count currently zero");
-        
-        for(uint8 i; i < users.length; i++){
-            address user = users[i];
-            address proxy = governance.deriveUserProxyAddress(user);
+        if(votes > 0 ){
+            for(uint8 i; i < users.length; i++){
+                address user = users[i];
+                address proxy = governance.deriveUserProxyAddress(user);
 
-            if(proxy.code.length == 0){
-                hevm.prank(user);
-                bold.approve(address(governance), type(uint256).max);
+                if(proxy.code.length == 0){
+                    hevm.prank(user);
+                    bold.approve(address(governance), type(uint256).max);
 
-                hevm.prank(user);
-                address newInitiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
- 
-                hevm.warp(block.timestamp + governance.EPOCH_DURATION());
+                    hevm.prank(user);
+                    address newInitiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
+    
+                    hevm.warp(block.timestamp + governance.EPOCH_DURATION());
 
-                (IGovernance.InitiativeStatus statusAfterInitiativeCreation,,) = governance.getInitiativeState(newInitiative);
-                
-                // now i have to make the return true or false for now
-                // that the status showdlnt be able to update to warm up it should be non existent;
-                hevm.prank(user);
-                try governance.registerInitiative(newInitiative) {
+                    (IGovernance.InitiativeStatus statusAfterInitiativeCreation,,) = governance.getInitiativeState(newInitiative);
                     
-                } catch(bytes memory err)  {
-                    emit ErrorBytes("Error while calling the register initiative",err);
+                    // now i have to make the return true or false for now
+                    // that the status showdlnt be able to update to warm up it should be non existent;
+                    hevm.prank(user);
+                    try governance.registerInitiative(newInitiative) {
+                        
+                    } catch(bytes memory err)  {
+                        emit ErrorBytes("Error while calling the register initiative",err);
+                    }
+                    (IGovernance.InitiativeStatus statusAfterInitiativeRegistration,,) = governance.getInitiativeState(newInitiative);
+                    
+                    // if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
+                    //     return false;
+                    // }
+                    if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
+                        emit VotesAndEpcoh(votes, epoch);
+                        return false;
+                    }
+                    // assert(statusAfterInitiativeCreation == statusAfterInitiativeRegistration);
                 }
-                (IGovernance.InitiativeStatus statusAfterInitiativeRegistration,,) = governance.getInitiativeState(newInitiative);
-                
-                // if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
-                //     return false;
-                // }
-                return statusAfterInitiativeCreation == statusAfterInitiativeRegistration;
-            }
 
+            }
         }
 
         return true;

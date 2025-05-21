@@ -10,7 +10,7 @@ balanceContract: 10000000000000000000
 corpusDir: "./TestHarnessEchidna/corpusTesting"
 cryticArgs: ["--foundry-compile-all"]
 
-
+prefix: "invariant_"
 # filterBlacklist: false
 # filterFunctions: [
 #   "EchidnaTesting.handler_clampedDepositLqtyUser(uint8,uint256)",

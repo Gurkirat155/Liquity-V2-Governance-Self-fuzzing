@@ -2,38 +2,37 @@
 pragma solidity ^0.8.24;
 
 import "../Properties/GovernanceProperties.sol";
-// import {Test,console} from "forge-std/Test.sol";
 
 
-// contract TargetFunctionsGovernanace is BaseTargetFunctions, GovernanceProperties{
-// contract TargetFunctionsGovernanace is GovernanceProperties,  Test{
 contract TargetFunctionsGovernanace is GovernanceProperties{
     
     
 
     function handler_clampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser,address proxy) = _getRandomUser(userIndex);
+        // console.log("THis is the proxy before deployement", proxy);
+        // console.log("THis is the code length before deploying", proxy.code.length);
+        address proxyAddress ;
         __before(randomUser);
         if(randomUser == users[1] && user2ProxyCreated == false){
             hevm.prank(randomUser);
             try governance.deployUserProxy()  returns (address proxyAdd) {
                 user2Proxy = proxyAdd;
+                proxyAddress = proxyAdd;
                 hevm.prank(randomUser);
                 lqty.approve(proxyAdd, type(uint256).max);
                 user2ProxyCreated = true;
-            } catch  {
-                emit Error("User 2 proxy didn't deploy");
+            } catch(bytes memory err)  {
+                emit ErrorBytes("User 2 proxy didn't deploy",err);
             }
         }
-
+        // console.log("THis is the proxy add", proxyAddress);
+        // console.log("THis is the code length after deploying", proxyAddress.code.length);
         lqtyAmt %= lqty.balanceOf(randomUser);
         hevm.prank(randomUser);
         lqty.approve(proxy, type(uint256).max);
         hevm.prank(randomUser);
         governance.depositLQTY(lqtyAmt);
-        // governance.depositLQTY(lqtyAmt,false,randomUser);
-
-        /// @audit Add amount to allocated ghost variable 
         __after(randomUser);
     } 
 
@@ -41,12 +40,13 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
     function handler_unclampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser, address proxy) = _getRandomUser(userIndex);
         __before(randomUser);
+
+        lqtyAmt %= lqty.balanceOf(randomUser);
         hevm.prank(randomUser);
         lqty.approve(proxy, type(uint256).max);
         hevm.prank(randomUser);
         governance.depositLQTY(lqtyAmt);
         __after(randomUser);
-        /// @audit Add amount to allocated ghost variable 
     }
 
     function handler_unclampedWithdrawLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
@@ -55,7 +55,6 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         hevm.prank(randomUser);
         governance.withdrawLQTY(lqtyAmt);
         __after(randomUser);
-        /// @audit Add amount to unallocated ghost variable minus that so that we could compare in the invariant that we'll define in properties.
     }
 
     // There are two options with below handler 
@@ -81,7 +80,11 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         lqtyAmt %= userStakedLqty;
 
         hevm.prank(randomUser);
-        governance.withdrawLQTY(lqtyAmt);
+        try governance.withdrawLQTY(lqtyAmt) {
+            
+        } catch (bytes memory err) {
+            emit ErrorBytes("Clamped withdraw lqty unsuccessful", err);
+        }
         __after(randomUser);
     }
 
@@ -99,7 +102,11 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         lqtyAmt %= userStakedUnallocatedLqty;
 
         hevm.prank(randomUser);
-        governance.withdrawLQTY(lqtyAmt);
+        try governance.withdrawLQTY(lqtyAmt) {
+            
+        } catch  {
+            emit Error("Unclamped withdraw lqty unsuccessful");
+        }
         __after(randomUser);
     }
 
@@ -198,37 +205,19 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         __after(randomUser);
     }
 
-    // claimForInitiative(address _initiative)
-    // should this be a handler or an echidna invariant 
     function handler_claimForInitiative(uint8 initiativeIndex) public {
         address initiative = _getRandomInitiative(initiativeIndex);
         __before(users[0]);
-        // uint256 initiativeInitialBoldBalance = bold.balanceOf(initiative);
         governance.claimForInitiative(initiative);
-        // try governance.claimForInitiative(initiative)  {
-        // }catch {
-        //     emit Error("Initiative wasn't able claim the bold");
-        // }
         __after(users[0]);
     }
 
-    // function handler_getLatestVotingThreshold() public view returns(uint256 votingThreshold) {
-    //     votingThreshold = governance.getLatestVotingThreshold();
-    // }
     function handler_getLatestVotingThreshold() public view {
         governance.getLatestVotingThreshold();
-        // try governance.getLatestVotingThreshold() returns (uint256) {
-        // } catch  {
-        //     emit Error("Voting threshold is not being called");
-        // }
     }
 
     function handler_callBoldAccured() public view{
         governance.boldAccrued();
-        // try governance.boldAccrued() returns (uint256) {
-        // } catch  {
-        //     emit Error("Bold Accured state variable is not being called");
-        // }
     }
 
 }

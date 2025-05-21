@@ -13,7 +13,9 @@ import {IUserProxy} from "../src/interfaces/IUserProxy.sol";
 import "./utils/utils.sol";
 // import {BeforeAfter} from "./BeforeAfter.sol";
 
-
+// --------------------------THis is harness example
+// to run the tests
+// echidna TestHarnessEchidna/SelfSetup.sol --contract SelfSetup --config TestHarnessEchidna/config.test.yaml
   
 contract SelfSetup is  MockStakingV1Deployer {
 
@@ -114,15 +116,29 @@ contract SelfSetup is  MockStakingV1Deployer {
     }
 
 
-    function echidna_epochStartShouldNotRevert() public returns(bool){
+    // function echidna_epochStartShouldNotRevert() public returns(bool){
 
-        try governance.epochStart() returns(uint256 currentTime) {
-            // Commenting out below line making it harcoded false
-            // return true; 
-        } catch (bytes memory err)  {
-            emit  Error(err);
-            return false;
+    //     try governance.epochStart() returns(uint256 currentTime) {
+    //         // Commenting out below line making it harcoded false
+    //         // return true; 
+    //     } catch (bytes memory err)  {
+    //         emit  Error(err);
+    //         return false;
+    //     }
+
+    // }
+
+    bool bug = false;
+
+    function triggerBug() public {
+        bug = true;
+    }
+
+    function invariant_epochStartShouldNotRevert() public returns (bool) {
+        uint256 a;
+        for (uint256 i = 0; i < 3; i++) {
+            a = i;
         }
-
+        return !bug;
     }
 }

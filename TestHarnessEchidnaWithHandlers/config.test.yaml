@@ -1,5 +1,5 @@
 # Allow fuzzer to use public/external functions from all contracts
-allContracts: false
+allContracts: true
 # testMode : assertion
 testLimit: 100000
 

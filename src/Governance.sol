@@ -490,7 +490,7 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
 
         // == Just Registered Condition == //
         if (initiativeRegistrationEpoch == currentEpoch) {
-            // return (InitiativeStatus.WARM_UP, 0, 0);
+            return (InitiativeStatus.WARM_UP, 0, 0);
             /// Was registered this week, cannot have rewards
         }
 

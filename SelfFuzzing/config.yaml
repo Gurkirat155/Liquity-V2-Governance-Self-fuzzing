@@ -1,7 +1,7 @@
 # Allow fuzzer to use public/external functions from all contracts
 allContracts: false
 # testMode : assertion
-testLimit: 1000000
+testLimit: 100000
 
 # specify address to use for fuzz transations
 # limit this to the allowed voting addresses
@@ -9,7 +9,7 @@ sender: ["0x1000000000000000000000000000000000000000", "0x2000000000000000000000
 balanceContract: 10000000000000000000
 corpusDir: "./SelfFuzzing/corpus"
 cryticArgs: ["--foundry-compile-all"]
-
+workers: 10
 filterBlacklist: false
 filterFunctions: [
   "SelfCryticTester.handler_clampedDepositLqtyUser(uint8,uint256)",

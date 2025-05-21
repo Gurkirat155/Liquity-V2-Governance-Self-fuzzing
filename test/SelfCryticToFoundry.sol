@@ -132,11 +132,12 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
             assertEq(deployedInitiatives.length, 2);
         }
 
-        function helperFunction_DepositLqty(uint8 userIndex, uint256 lqtyAmt) public returns(address) {
+        function helperFunction_DepositLqty(uint8 userIndex, uint256 lqtyAmt) public returns(address, address) {
             uint8 randomUserIndex = userIndex;
             uint256 amtOfLqtyToStake = lqtyAmt;
             (address user , address proxy) = _getRandomUser(randomUserIndex);
             uint256 initialBalOfUser = lqty.balanceOf(user);
+            console.log("this the user who is depositing lqty", user);
             console.log("Initial bal of the user",initialBalOfUser);
             assertEq(lqty.balanceOf(user),initialLqtyAllocatedPerUser);
             handler_clampedDepositLqtyUser(randomUserIndex,amtOfLqtyToStake);
@@ -146,13 +147,13 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
             uint256 finalUserLqtyBalance = lqty.balanceOf(user);
             console.log("Final bal of the user",finalUserLqtyBalance);
             assertEq(finalUserLqtyBalance , initialBalOfUser - userStakedLqty);
-            return user;
+            return (user , proxy);
             // console.log(lqty.balanceOf(user), "This is user balance after depositing");
         }
         
         function helperFunction_DeployAndRegisterInitiave(uint8 userIndex, uint256 lqtyAmt) public returns(address,address) {
             uint256 initiallyDeployedInitiative = deployedInitiatives.length;
-            address user = helperFunction_DepositLqty(userIndex,lqtyAmt);
+            (address user,) = helperFunction_DepositLqty(userIndex,lqtyAmt);
             vm.warp(block.timestamp + governance.EPOCH_DURATION());
 
             handler_makeInitiative();
@@ -169,9 +170,9 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
             return (user,lastInitiative);
         }
 
-        function test_invarintZeroAllocatedLqtyRegisterNotPossible() public {
-            echdina_zeroAllocatedLqtyUserCannotRegister();
-        }
+        // function test_invarintZeroAllocatedLqtyRegisterNotPossible() public {
+        //     echidna_zeroAllocatedLqtyUserCannotRegister();
+        // }
 
         function test_handleClaimForInitiative() public {
             uint256 lqtyAmtTodeposit = 5000e18;
@@ -228,15 +229,11 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
         (uint256 votes, uint256 epoch) = governance.votesSnapshot();
         console.log("This is the total votes for the epoch", votes);
         console.log("This is the epcoh", epoch);
-        // test_handleClaimForInitiative();
-        // test_handlerAllocateLqty();
+        test_handleClaimForInitiative();
         hevm.warp(block.timestamp + governance.EPOCH_DURATION());
         (uint256 newVotes, uint256 newEpoch) = governance.votesSnapshot();
         console.log("This is the total new Votes for the new Epoch", newVotes);
         console.log("This is the epcoh", newEpoch);
-        
-        // IGovernance.VoteSnapshot memory snapshot = IGovernance.VoteSnapshot(1e18, governance.epoch());
-        // governance.tester_setVotesSnapshot(snapshot);
         
         for(uint8 i; i < users.length; i++){
             address user = users[i];
@@ -272,38 +269,87 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
             }
         }
 
-        // (address user, address proxy) = _getRandomUser(randomNumber);
-        // // address user = 0x4000000000000000000000000000000000000000;
-        // // address proxy = governance.deriveUserProxyAddress(user);
-        // // 0x4000000000000000000000000000000000000000
-        // console.log("This is the user", user);
-        // console.log("This is the user proxy address", proxy);
-        // console.log("This is the user proxy address code length", proxy.code.length);
-        // hevm.prank(user);
-        // address derivedAddrss =  governance.deployUserProxy();
-        // console.log("This is the derieved address after deployemtn", derivedAddrss);
-        // console.log("This is the derieved address code length after deployemtn", derivedAddrss.code.length);
+
+    }
+
+    function test_handlerUnclampedWithdrawUnallocatedLqty() public {
+        uint8 userIndexWithLqtyBalance = 8;
+        uint256 depositLqtyAmt = 1000e18;
+        uint256 withdrawLqtyAmt = 2400e18;
+        (, address proxy) = helperFunction_DepositLqty(userIndexWithLqtyBalance, depositLqtyAmt);
         
+        uint256 balanceOfUserAfterDepositing = IUserProxy(proxy).staked();
+        console.log("User staked lqty after depositing", balanceOfUserAfterDepositing);
+        handler_unclampedWithdrawUnallocatedLqty(userIndexWithLqtyBalance, withdrawLqtyAmt);
+        // uint256 lqtAmt = withdrawLqtyAmt % depositLqtyAmt;
+        uint256 balanceOfUserAfterWithdraw = IUserProxy(proxy).staked();
+        console.log("User staked lqty after withdrawing" , balanceOfUserAfterWithdraw);
+        // assertEq(balanceOfUserAfterWithdraw, balanceOfUserAfterDepositing - )
+    }
 
-        // bold.approve(address(governance), type(uint256).max);
-        // if(proxy.code.length == 0){
-        //     address newInitiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
-            
-        //     // vm.startPrank(user);
-        //     // governance.registerInitiative(lastInitiative);
-        //     // vm.stopPrank();
+    function test_handlerUnclampedDepositLqtyUser() public {
+        uint8 userIndexWithLqtyBalance = 5;
+        uint256 depositLqtyAmt = type(uint256).max;
+        // uint256 depositLqtyAmt = 1000e18;
+        (address user, address proxy) = _getRandomUser(userIndexWithLqtyBalance);
+        console.log("This is the user add", user);
+        console.log("This is the user proxy add without the handler",proxy);
+        uint256 balanceOfUserBeforeDepositing = lqty.balanceOf(user);
+        console.log("User staked lqty before depositing", balanceOfUserBeforeDepositing);
+        handler_unclampedDepositLqtyUser(userIndexWithLqtyBalance, depositLqtyAmt);
 
-        //     hevm.warp(block.timestamp + governance.EPOCH_DURATION());
-        //     // bold.approve(address(governance), type(uint256).max);
-        //     // hevm.prank(user);
-        //     // hevm.prank(0x4000000000000000000000000000000000000000);
-        //     governance.registerInitiative(newInitiative);
-        //     // try governance.registerInitiative(newInitiative) {
-                
-        //     // } catch  {
-                
-        //     // }
-        // }
+        uint256 balanceOfUserAfter1stDeposit = lqty.balanceOf(user);
+        console.log("User staked lqty After 1st depositing", balanceOfUserAfter1stDeposit);
+        uint256 lqtyAMTtoDeposit = depositLqtyAmt % balanceOfUserBeforeDepositing;
+        assertEq(balanceOfUserAfter1stDeposit, balanceOfUserBeforeDepositing - lqtyAMTtoDeposit);
+    }
+
+    function test_handlerClampedWithdrawLqtyUser() public {
+        uint8 userIndex = 4;
+        uint256 lqtyAmtTODepositIndex = 1000e18;
+        uint256 withdrawAmtIndex = type(uint256).max;
+
+        (, address proxy) = helperFunction_DepositLqty(userIndex, lqtyAmtTODepositIndex);
+
+        vm.warp(block.timestamp + governance.EPOCH_DURATION());
+
+        uint256 amtStaked =  IUserProxy(proxy).staked();
+        console.log("Amount staked by the user", amtStaked);
+
+        handler_clampedWithdrawLqtyUser(userIndex, withdrawAmtIndex);
+
+        uint256 amtStakedAfterWithdrawing =  IUserProxy(proxy).staked();
+        console.log("Amount staked by the user after withdrawing", amtStakedAfterWithdrawing);
+    }
+
+    function test_FuzzingBugEchidnaZeroAllocatedLqtyUserCannotRegister() public {
+
+        handler_unclampedDepositLqtyUser(1,2);
+        // 1
+        // 0
+        // 1401250693802697296442009664724842008804930910753
+        // 30946011226782978177343555213508764071126580206
+        handler_allocateLqty(1, 0, 1401250693802697296442009664724842008804930910753,30946011226782978177343555213508764071126580206);
+
+        handler_clampedDepositLqtyUser(0, 4);
+
+        handler_allocateLqty(0,0,0,3);
+
+        handler_unregisterInitiative(0);
+
+
+        // handler_unclampedDepositLqtyUser(1,2);
+        // // 1
+        // // 0
+        // // 86189975154878876308664540884516465302827943235519862705397
+        // // 113875919892142423823684955888143135780490015606416862162246
+        // handler_allocateLqty(1, 0, 86189975154878876308664540884516465302827943235519862705397,113875919892142423823684955888143135780490015606416862162246);
+
+        // handler_clampedDepositLqtyUser(0, 2902644534222048099442);
+
+        // handler_allocateLqty(0,0,0,2975);
+
+        // handler_unregisterInitiative(0);
 
     }
 

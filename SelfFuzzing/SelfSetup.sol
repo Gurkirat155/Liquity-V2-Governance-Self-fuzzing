@@ -77,6 +77,8 @@ contract SelfSetup is  MockStakingV1Deployer{
     address internal user2Proxy;
     bool internal user2ProxyCreated;
 
+    uint256 internal timeStampWhenContractWasCreated;
+
 
 
     function setup() internal {
@@ -110,6 +112,8 @@ contract SelfSetup is  MockStakingV1Deployer{
         
         hevm.prank(deployer);
         governance = new Governance(address(lqty), address(lusd), address(stakingV1), address(bold), config, deployer, deployedInitiatives);
+        
+        timeStampWhenContractWasCreated = block.timestamp;
         
         hevm.prank(users[0]);
         user1Proxy = governance.deployUserProxy();
