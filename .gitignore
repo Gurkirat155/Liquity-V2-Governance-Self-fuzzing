@@ -17,5 +17,5 @@ echidna/
 medusa/
 
 # Fuzzing Test files
-TestHarnessEchidna/
-TestHarnessEchidnaWithHandlers/
+TestHarnessEchidna
+TestHarnessEchidnaWithHandlers

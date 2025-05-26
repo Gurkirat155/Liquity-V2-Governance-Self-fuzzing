@@ -323,34 +323,46 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
     }
 
     function test_FuzzingBugEchidnaZeroAllocatedLqtyUserCannotRegister() public {
-
+        // console.log("This is the block. number before", block.number);
+        
         handler_unclampedDepositLqtyUser(1,2);
+        vm.roll(block.number + 1);
+
         // 1
         // 0
         // 1401250693802697296442009664724842008804930910753
         // 30946011226782978177343555213508764071126580206
         handler_allocateLqty(1, 0, 1401250693802697296442009664724842008804930910753,30946011226782978177343555213508764071126580206);
+        vm.roll(block.number + 1);
 
         handler_clampedDepositLqtyUser(0, 4);
+        vm.roll(block.number + 1);
 
         handler_allocateLqty(0,0,0,3);
-
+        vm.roll(block.number + 1);
+        // console.log("This is the block. number after", block.number);
         handler_unregisterInitiative(0);
 
+        // echidna_zeroAllocatedLqtyUserCannotRegister();
 
-        // handler_unclampedDepositLqtyUser(1,2);
-        // // 1
-        // // 0
-        // // 86189975154878876308664540884516465302827943235519862705397
-        // // 113875919892142423823684955888143135780490015606416862162246
-        // handler_allocateLqty(1, 0, 86189975154878876308664540884516465302827943235519862705397,113875919892142423823684955888143135780490015606416862162246);
+    }
 
-        // handler_clampedDepositLqtyUser(0, 2902644534222048099442);
+    function test_echidnaOffSetOfUserShouldIncreaseWithTimeOfAllUsers() public {
+        // uint8 userIndex = 8;
+        // uint256 lqtyAmt = 2000e18;
 
-        // handler_allocateLqty(0,0,0,2975);
+        // helperFunction_DeployAndRegisterInitiave(userIndex, lqtyAmt);
+        // 309485009821345068724781054
+        // 309485009821345068724781055
+        console.log("This is the value of uint88 max", type(uint88).max);
+        console.log("This is the modulas ", 309485009821345068724781054 % type(uint88).max );
+        // invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(1);
+        // invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(309485009821345068724781054);
+    }
 
-        // handler_unregisterInitiative(0);
-
+    function test_echidnaOffSetOfUserShouldIncreaseWithTimeOfSingleUser() public {
+        invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(200, 309485009821345068724781054);
+        invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(245, 309485009821345068724781054);
     }
 
 }

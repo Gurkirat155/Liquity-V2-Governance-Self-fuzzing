@@ -1,15 +1,16 @@
 # Allow fuzzer to use public/external functions from all contracts
 allContracts: false
-# testMode : assertion
+testMode : assertion
 testLimit: 100000
 
+# prefix: "invariant_"
 # specify address to use for fuzz transations
 # limit this to the allowed voting addresses
 sender: ["0x1000000000000000000000000000000000000000", "0x2000000000000000000000000000000000000000", "0x3000000000000000000000000000000000000000", "0x4000000000000000000000000000000000000000", "0x5000000000000000000000000000000000000000","0x6000000000000000000000000000000000000000"]
 balanceContract: 10000000000000000000
 corpusDir: "./SelfFuzzing/corpus"
 cryticArgs: ["--foundry-compile-all"]
-workers: 10
+workers: 16
 filterBlacklist: false
 filterFunctions: [
   "SelfCryticTester.handler_clampedDepositLqtyUser(uint8,uint256)",
@@ -29,5 +30,14 @@ filterFunctions: [
   "SelfCryticTester.handler_claimForInitiative(uint8)",
   "SelfCryticTester.handler_getLatestVotingThreshold()",
   "SelfCryticTester.handler_callBoldAccured()",
+  "SelfCryticTester.invariant_epochShouldNotRevert()",
+  "SelfCryticTester.invariant_secondsWithinEpochShouldNotRevert()",
+  "SelfCryticTester.invariant_getTotalVotesAndStateShouldNotRevert()",
+  "SelfCryticTester.invariant_calculateVotingThresholdWithVotesShouldNotRevert()",
+  "SelfCryticTester.invariant_calculateVotingThresholdShouldNotRevert()",
+  "SelfCryticTester.invariant_getLatestVotingThresholdShouldNotRevert()",
+  "SelfCryticTester.invariant_initiativeShouldReturnSameStatus()",
+  # "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256)",
+  "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8,uint256)",
   # "Governance.getLatestVotingThreshold()",  
 ]

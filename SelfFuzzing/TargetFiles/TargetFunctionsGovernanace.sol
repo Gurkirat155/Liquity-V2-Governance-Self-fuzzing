@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import "../Properties/GovernanceProperties.sol";
+// import "../BeforeAfter.sol";
 
 
 contract TargetFunctionsGovernanace is GovernanceProperties{
@@ -10,8 +11,7 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
 
     function handler_clampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser,address proxy) = _getRandomUser(userIndex);
-        // console.log("THis is the proxy before deployement", proxy);
-        // console.log("THis is the code length before deploying", proxy.code.length);
+        // console.log("This is the user in handler_clampedDepositLqtyUser", randomUser);
         address proxyAddress ;
         __before(randomUser);
         if(randomUser == users[1] && user2ProxyCreated == false){
@@ -34,19 +34,21 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         hevm.prank(randomUser);
         governance.depositLQTY(lqtyAmt);
         __after(randomUser);
+        // console.log("This is the lqty stanked in handler_clampedDepositLqtyUser",lqtyAmt);
     } 
 
     // @doubt since the `depositLQTY` function already calls `_increaseUserVoteTrackers` in that function deployes a userproxy when the user hasn't deployed it yet then above `handler_clampedDepositLqtyUser` function becomes invalid.
     function handler_unclampedDepositLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
         (address randomUser, address proxy) = _getRandomUser(userIndex);
         __before(randomUser);
-
+        // console.log("This is the user in handler_unclampedDepositLqtyUser", randomUser);
         lqtyAmt %= lqty.balanceOf(randomUser);
         hevm.prank(randomUser);
         lqty.approve(proxy, type(uint256).max);
         hevm.prank(randomUser);
         governance.depositLQTY(lqtyAmt);
         __after(randomUser);
+        // console.log("This is the lqty stanked in handler_unclampedDepositLqtyUser",lqtyAmt);
     }
 
     function handler_unclampedWithdrawLqtyUser(uint8 userIndex, uint256 lqtyAmt) public {
@@ -178,9 +180,11 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
 
     function handler_allocateLqty(uint8 userIndex, uint8 initiativeIndex, uint256 votesLqty, uint256 vetosLqty) public  {
         (address randomUser, address proxy ) = _getRandomUser(userIndex);
+        // console.log("This is the user in handler_allocateLqty", randomUser);
         __before(randomUser);
         uint256 stakedLqty = IUserProxy(proxy).staked();
         address initiative = _getRandomInitiative(initiativeIndex);
+        // console.log("This is the initiative address in handler_allocateLqty",initiative);
         (uint256 votes ,, uint256 vetos ,,) = governance.lqtyAllocatedByUserToInitiative(randomUser,initiative);
         address[] memory initiativeToReset ;
         if(votes !=0 || vetos !=0){
@@ -203,6 +207,15 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         hevm.prank(randomUser);
         governance.allocateLQTY(initiativeToReset, initiatives, votesLqtyAllocated, vetosLqtyAllocated);
         __after(randomUser);
+
+        // for(uint256 i; i<initiatives.length; i++){
+        //     console.log("THis is the total initiaves", initiatives[i]);
+        // }
+
+        // for(uint256 i; i<votesLqtyAllocated.length; i++){
+        //     console.log("THis is the total votes calculated in handler_allocateLqty",votesLqtyAllocated[i]);
+        //     console.log("THis is the total vetos calculated in handler_allocateLqty",vetosLqtyAllocated[i]);
+        // }
     }
 
     function handler_claimForInitiative(uint8 initiativeIndex) public {

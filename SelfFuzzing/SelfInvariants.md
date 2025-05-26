@@ -12,6 +12,7 @@
 12. When claimed the from the V1 then the lqty or lusd should increase
 13. Users should not be allowed to register before 2 epochs `Governance: registration-not-yet-enabled`
 14. Users should not be able register initiative 
+15. check_unregisterable_consistecy
 
 NOTE:-
 no no this `IUserProxy(governance.deriveUserProxyAddress(user)).staked();` means that `allocatedLqty + unallcoatedLqty` both where as `governance.userStates[randomUser].allocatedLQTY` means only allocated lqty.
