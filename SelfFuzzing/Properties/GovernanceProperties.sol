@@ -17,9 +17,12 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     event DebugPath(string);
     event ErrorBytes(string,bytes);
     event VotesAndEpcoh(uint256, uint256);
-    
+    event TotalAllocatedOffsetBeforeAndAfter(uint256, uint256);
+    event LqtyAmt(uint256);
 
-    function echidna_initiativeShouldReturnSameStatus() public returns(bool){
+    
+    // returns(bool)
+    function invariant_initiativeShouldReturnSameStatus() public {
         if(_before.epoch == _after.epoch) {
             for(uint256 i;i <deployedInitiatives.length; i++){
                 address initiative = deployedInitiatives[i];
@@ -39,79 +42,93 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
                     continue;
                 }
 
-                // assert(_before.initiativeStatus[initiative] == _after.initiativeStatus[initiative]);
-                if(_before.initiativeStatus[initiative] != _after.initiativeStatus[initiative]){
-                    emit BeforeAfterStatus(uint8(_before.initiativeStatus[initiative]) , uint8(_after.initiativeStatus[initiative]));
-                    return false;
-                }
+                assert(_before.initiativeStatus[initiative] == _after.initiativeStatus[initiative]);
+                // if(_before.initiativeStatus[initiative] != _after.initiativeStatus[initiative]){
+                //     emit BeforeAfterStatus(uint8(_before.initiativeStatus[initiative]) , uint8(_after.initiativeStatus[initiative]));
+                //     emit AssertionFailed("_before.initiativeStatus[initiative] != _after.initiativeStatus[initiative] is false");
+                //     assert(false);
+                // }
                 // return(_before.initiativeStatus[initiative] == _after.initiativeStatus[initiative]);
 
             }
         }
-        return true;
+        // assert(true);
+        // return true;
     }
 
     /* ------------------------commenting out revert properties for the fuzzer to function better
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
 
-    function echidna_epochShouldNotRevert() public returns(bool){
+    function invariant_epochShouldNotRevert() public {
         try governance.epoch(){
-            return true;
+            // return true;
+            assert(true);
         } catch  {
             emit Error("Epoch should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
-    function echidna_secondsWithinEpochShouldNotRevert() public returns(bool){
+    function invariant_secondsWithinEpochShouldNotRevert() public {
         
         try governance.secondsWithinEpoch() {
-            return true;
+            // return true;
+            assert(true);
         }catch {
             emit Error("Epoch should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
-    function echidna_getTotalVotesAndStateShouldNotRevert() public returns(bool){
+    function invariant_getTotalVotesAndStateShouldNotRevert() public {
         try governance.getTotalVotesAndState() {
-            return true;
+            // return true;
+            assert(true);
         }
         catch {
             emit Error("Get total Votes and state should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
-    function echidna_calculateVotingThresholdWithVotesShouldNotRevert() public  returns(bool) {
+    function invariant_calculateVotingThresholdWithVotesShouldNotRevert() public   {
         (uint256 totalVotes,) = governance.votesSnapshot();
         try governance.calculateVotingThreshold(totalVotes) {
-            return true;
+            // return true;
+            assert(true);
         }catch{
             emit Error("Calculate Voting threshold should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
-    function echidna_calculateVotingThresholdShouldNotRevert() public  returns(bool) {
+    function invariant_calculateVotingThresholdShouldNotRevert() public   {
         
         try governance.calculateVotingThreshold() {
-            return true;
+            // return true;
+            assert(true);
         }catch{
             emit Error("Calculate Voting threshold should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
 
-    function echidna_getLatestVotingThresholdShouldNotRevert() public  returns(bool) {
+    function invariant_getLatestVotingThresholdShouldNotRevert() public   {
         
         try governance.getLatestVotingThreshold() {
-            return true;
+            // return true;
+            assert(true);
         }catch{
             emit Error("Get latest voting threshold should not revert");
-            return false;
+            // return false;
+            assert(false);
         }
     }
 
@@ -119,54 +136,247 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
 
+    // See if the user has lqty allocated 
+    // you cold go through loop for this 
+    // And if it is zero then nothing and if it is not zero than after some time the claimable amt should incerase
+        
+    // function echidna_offSetOfUserShouldIncreaseWithTime() public returns(bool) {
+    //     address[] memory localUsers = users;
 
-    // function echidna_offSetShouldIncrease() public returns(bool) {}
+    //     uint256 totalInitialLqtyAmtStaked;
+    //     uint256 totalInitialUnallocatedLQTY;
+    //     uint256 totalInitialUnallcatedOffset;
 
-    function echidna_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
-        (uint256 votes, uint256 epoch) = governance.votesSnapshot();
+    //     uint256 totalFinalLqtyAmtStaked;
+    //     uint256 totalFinalUnallocatedLQTY;
+    //     uint256 totalFinalUnallcatedOffset;
 
-        // require(votes > 0, "votes count currently zero");
-        if(votes > 0 ){
-            for(uint8 i; i < users.length; i++){
-                address user = users[i];
-                address proxy = governance.deriveUserProxyAddress(user);
+    //     for(uint256 i; i<localUsers.length; i++){
+    //         console.log("This is the user", localUsers[i]);
+    //         address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
+    //         if (userDerieveProxydAdd.code.length == 0) {
+    //             continue;
+    //         }
+    //         uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
+    //         console.log("this is the amt of lqty staked intially by the user", userStakedLqty);
+    //         (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
 
-                if(proxy.code.length == 0){
-                    hevm.prank(user);
-                    bold.approve(address(governance), type(uint256).max);
+    //         console.log("This is the user unallocated lqty initially", userUnallocatedLqty);
+    //         console.log("THis is the user unallocates offset initially", userUnallocatedOffset);
 
-                    hevm.prank(user);
-                    address newInitiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
-    
-                    hevm.warp(block.timestamp + governance.EPOCH_DURATION());
+    //         totalInitialLqtyAmtStaked += userStakedLqty;
+    //         totalInitialUnallocatedLQTY += userUnallocatedLqty;
+    //         totalInitialUnallcatedOffset += userUnallocatedOffset;
+    //     }
 
-                    (IGovernance.InitiativeStatus statusAfterInitiativeCreation,,) = governance.getInitiativeState(newInitiative);
-                    
-                    // now i have to make the return true or false for now
-                    // that the status showdlnt be able to update to warm up it should be non existent;
-                    hevm.prank(user);
-                    try governance.registerInitiative(newInitiative) {
-                        
-                    } catch(bytes memory err)  {
-                        emit ErrorBytes("Error while calling the register initiative",err);
-                    }
-                    (IGovernance.InitiativeStatus statusAfterInitiativeRegistration,,) = governance.getInitiativeState(newInitiative);
-                    
-                    // if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
-                    //     return false;
-                    // }
-                    if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
-                        emit VotesAndEpcoh(votes, epoch);
-                        return false;
-                    }
-                    // assert(statusAfterInitiativeCreation == statusAfterInitiativeRegistration);
-                }
+    //     if(totalInitialLqtyAmtStaked != 0){
 
+    //         hevm.warp(block.timestamp + governance.EPOCH_DURATION());
+
+
+    //         for(uint256 i; i<localUsers.length; i++){
+    //             // derieve user proxy is giving an error 
+    //             console.log("This is the user", localUsers[i]);
+    //             address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
+    //             if (userDerieveProxydAdd.code.length == 0) {
+    //                 continue;
+    //             }
+    //             uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
+    //             console.log("this is the amt of lqty staked finally by the user", userStakedLqty);
+    //             (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
+
+    //             console.log("This is the user unallocated lqty finally", userUnallocatedLqty);
+    //             console.log("THis is the user unallocates offset finally", userUnallocatedOffset);
+
+    //             totalFinalLqtyAmtStaked += userStakedLqty;
+    //             totalFinalUnallocatedLQTY += userUnallocatedLqty;
+    //             totalFinalUnallcatedOffset += userUnallocatedOffset;
+    //         }
+
+    //         if(totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY){
+    //             console.log("Gone through the if block which means totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY");
+    //             // return (totalFinalUnallcatedOffset > totalInitialUallcatedOffset);
+    //             // if(totalFinalUnallcatedOffset < totalInitialUnallcatedOffset){
+    //             //     console.log("THis is the false block");
+    //             //     return false;
+    //             // }
+
+    //             if(totalFinalUnallcatedOffset == totalInitialUnallcatedOffset){
+    //                 console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
+    //             }
+    //         }
+    //     }
+
+    //     return true;
+    // }
+
+    // function echidna_offSetOfUserShouldIncreaseWithTime() public returns (bool) {
+    //     address[] memory localUsers = users;
+
+    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+    //     console.log("this is the initial State staked lqty", initialState.totalStaked);
+    //     console.log("this is the initial State total unallcated lqty amt", initialState.totalUnallocatedLQTY);
+    //     console.log("this is the initial State total unallcated offset amt", initialState.totalUnallocatedOffset);
+
+    //     if (initialState.totalStaked == 0) return true;
+
+    //     hevm.warp(block.timestamp + 86400);
+
+    //     Accumulator memory finalState = accumulateUserStates(localUsers);
+
+    //     console.log("this is the final State staked lqty", finalState.totalStaked);
+    //     console.log("this is the final State total unallcated lqty amt", finalState.totalUnallocatedLQTY);
+    //     console.log("this is the final State total unallcated offset amt", finalState.totalUnallocatedOffset);
+
+    //     if (initialState.totalUnallocatedLQTY == finalState.totalUnallocatedLQTY) {
+    //         console.log("Initial and Final Unallocated LQTY are equal");
+    //         if(initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset){
+    //             console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
+    //         }
+    //         // if (finalState.totalUnallocatedOffset < initialState.totalUnallocatedOffset) {
+    //         //     console.log("Final offset is less than initial offset, reverting");
+    //         //     return false;
+    //         // }
+    //     }
+
+    //     return true;
+    // }
+
+
+    function invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8 userIndex, uint256 lqtyAmt) public {
+        if (lqtyAmt == 0) return;
+        (address user,) = _getRandomUser(userIndex);
+        (, uint256 unallocatedLQTYOffsetInital,,) = governance.userStates(user);
+
+        uint256 userBalance = lqty.balanceOf(user);
+        // if (userBalance == 0) return;
+        lqtyAmt = lqtyAmt % userBalance;
+        if (lqtyAmt == 0 || userBalance == 0) return;
+        address userProxy = governance.deriveUserProxyAddress(user);
+        if(userProxy.code.length == 0) return;
+
+        hevm.prank(user);
+        lqty.approve(userProxy, type(uint256).max);
+        hevm.prank(user);
+        governance.depositLQTY(lqtyAmt);
+
+        (,uint256 unallocatedLQTYOffsetFinal,,) = governance.userStates(user);
+
+        emit TotalAllocatedOffsetBeforeAndAfter(
+            unallocatedLQTYOffsetInital,
+            unallocatedLQTYOffsetFinal
+        );
+
+        assert(unallocatedLQTYOffsetInital < unallocatedLQTYOffsetFinal);
+
+    }
+
+    function invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(uint8 initiativeIndex,uint8 epochWeek) public {
+        address randomInitiative = _getRandomInitiative(initiativeIndex);
+        
+        (IGovernance.InitiativeStatus beforeStatus,,) = governance.getInitiativeState(randomInitiative);
+        if(epochWeek > 1){
+            if(beforeStatus == IGovernance.InitiativeStatus.UNREGISTERABLE){
+                hevm.warp(block.timestamp + epochWeek * governance.EPOCH_DURATION());
+                (IGovernance.InitiativeStatus afterStatus,,) = governance.getInitiativeState(randomInitiative);
+                assert(beforeStatus == afterStatus);
             }
         }
-
-        return true;
     }
+    // @audit instead of doing the all user do by single user at a time 
+    // function invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256 lqtyAmt) public {
+    //     if (lqtyAmt == 0) return;
+
+    //     address[] memory localUsers = users;
+    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+
+    //     console.log("Initial unallocated LQTY:", initialState.totalUnallocatedLQTY);
+    //     console.log("Initial unallocated offset:", initialState.totalUnallocatedOffset);
+
+    //     for (uint256 i = 0; i < localUsers.length; ++i) {
+    //         address user = localUsers[i];
+    //         console.log("this is the user", user);
+    //         uint256 userBalance = lqty.balanceOf(user);
+    //         console.log("This is the user balance initally", userBalance);
+
+    //         if (userBalance == 0) continue;
+
+    //         uint256 adjustedAmt = lqtyAmt % userBalance;
+    //         if (adjustedAmt == 0) continue;
+    //         console.log("THis is the is the adjusted amt", adjustedAmt);
+    //         address userProxy = governance.deriveUserProxyAddress(user);
+    //         if(userProxy.code.length == 0) continue;
+    //         console.log("This is the users staked lqty in the governance before depositing", IUserProxy(userProxy).staked());
+
+    //         hevm.prank(user);
+    //         lqty.approve(userProxy, type(uint256).max);
+    //         hevm.prank(user);
+    //         governance.depositLQTY(adjustedAmt);
+    //         console.log("this is the lqty amt that user is depositing",adjustedAmt);
+    //         console.log("this is the left over balance of the user finally", lqty.balanceOf(user));
+    //     }
+
+    //     Accumulator memory finalState = accumulateUserStates(localUsers);
+
+    //     console.log("Final unallocated LQTY:", finalState.totalUnallocatedLQTY);
+    //     console.log("Final unallocated offset:", finalState.totalUnallocatedOffset);
+
+    //     emit TotalAllocatedOffsetBeforeAndAfter(
+    //         initialState.totalUnallocatedOffset,
+    //         finalState.totalUnallocatedOffset
+    //     );
+
+    //     assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
+
+    // }
+    // 943796815419138766779646908812391136
+    // 943796815419138766779646908812391136
+
+    // function echidna_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
+    //     (uint256 votes, uint256 epoch) = governance.votesSnapshot();
+
+    //     // require(votes > 0, "votes count currently zero");
+    //     if(votes > 0 ){
+    //         for(uint8 i; i < users.length; i++){
+    //             address user = users[i];
+    //             address proxy = governance.deriveUserProxyAddress(user);
+
+    //             if(proxy.code.length == 0){
+    //                 hevm.prank(user);
+    //                 bold.approve(address(governance), type(uint256).max);
+
+    //                 hevm.prank(user);
+    //                 address newInitiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
+    
+    //                 hevm.warp(block.timestamp + governance.EPOCH_DURATION());
+
+    //                 (IGovernance.InitiativeStatus statusAfterInitiativeCreation,,) = governance.getInitiativeState(newInitiative);
+                    
+    //                 // now i have to make the return true or false for now
+    //                 // that the status showdlnt be able to update to warm up it should be non existent;
+    //                 hevm.prank(user);
+    //                 try governance.registerInitiative(newInitiative) {
+                        
+    //                 } catch(bytes memory err)  {
+    //                     emit ErrorBytes("Error while calling the register initiative",err);
+    //                 }
+    //                 (IGovernance.InitiativeStatus statusAfterInitiativeRegistration,,) = governance.getInitiativeState(newInitiative);
+                    
+    //                 // if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
+    //                 //     return false;
+    //                 // }
+    //                 if(statusAfterInitiativeCreation != statusAfterInitiativeRegistration){
+    //                     emit VotesAndEpcoh(votes, epoch);
+    //                     return false;
+    //                 }
+    //                 // assert(statusAfterInitiativeCreation == statusAfterInitiativeRegistration);
+    //             }
+
+    //         }
+    //     }
+
+    //     return true;
+    // }
 
 
     /* @audit these below function is a problem of the 
@@ -287,3 +497,88 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
         // console.log("user proxy address recently deployed", userproxyRecentdeployed);
         // console.log("derieve address of recently deployed", derivedrecentDeployedAddress);
         // console.log("derieve address of recently deployed", derivedrecentDeployedAddress.code.length);
+
+
+
+
+
+
+
+    //     function invariant_offSetOfUserShouldIncreaseWithDeposit(uint256 lqtyAmt) public  {
+    //     address[] memory localUsers = users;
+
+    //     // Accumulator memory initialState = accumulateUserStates(localUsers);
+    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+
+    //     console.log("This is the total initial unallocated lqty",  initialState.totalUnallocatedLQTY);
+    //     console.log("This is the total initial unallocated lqty offset",  initialState.totalUnallocatedOffset);
+    //     if(lqtyAmt > 0) {
+    //         for(uint256 i; i< localUsers.length; i++){
+    //             address user = localUsers[i];
+    //             // if(lqty.balanceOf(user) == 0)
+    //             uint256 userBalance = lqty.balanceOf(user);
+    //             // if (userBalance == 0 || lqtyAmt == 0) return;
+    //             emit UserDepositAndInitialBalance(user,userBalance);
+    //             if (userBalance == 0) continue;
+    //             console.log("This is the user for loop", user);
+    //             lqtyAmt %= userBalance;
+    //             if (lqtyAmt == 0) continue;
+
+    //             address  userProxy = governance.deriveUserProxyAddress(user);
+
+    //             hevm.prank(user);
+    //             lqty.approve(userProxy, type(uint256).max);
+    //             hevm.prank(user);
+    //             governance.depositLQTY(lqtyAmt);
+    //             emit LqtyAmt(lqtyAmt);
+    //         }
+
+    //         Accumulator memory finalState = accumulateUserStates(localUsers);
+
+    //         console.log("This is the total final unallocated lqty",  finalState.totalUnallocatedLQTY);
+    //         console.log("This is the total final unallocated lqty offset",  finalState.totalUnallocatedOffset);
+
+    //         // return initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset ;
+    //         emit TotalAllocatedOffsetBeforeAndAfter(initialState.totalUnallocatedOffset, finalState.totalUnallocatedOffset);
+    //         assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
+    //     }
+
+       
+    // }
+
+
+
+// function invariant_offSetOfUserShouldIncreaseWithDeposit(uint256 lqtyAmt) public {
+//     address[] memory localUsers = users;
+
+//     Accumulator memory initialState = accumulateUserStates(localUsers);
+//     Accumulator memory initialState = accumulateUserStates(localUsers);
+
+//     console.log("This is the total initial unallocated lqty", initialState.totalUnallocatedLQTY);
+//     console.log("This is the total initial unallocated lqty offset", initialState.totalUnallocatedOffset);
+
+//     for (uint256 i; i < localUsers.length; i++) {
+//         address user = localUsers[i];
+//         // if(lqty.balanceOf(user) == 0)
+//         uint256 userBalance = lqty.balanceOf(user);
+//         if (userBalance == 0 || lqtyAmt == 0) continue;
+//         console.log("This is the user for loop", user);
+//         lqtyAmt %= userBalance;
+//         if (lqtyAmt == 0) continue;
+
+//         address userProxy = governance.deriveUserProxyAddress(user);
+
+//         hevm.prank(user);
+//         lqty.approve(userProxy, type(uint256).max);
+//         hevm.prank(user);
+//         governance.depositLQTY(lqtyAmt);
+//     }
+
+//     Accumulator memory finalState = accumulateUserStates(localUsers);
+
+//     console.log("This is the total final unallocated lqty", finalState.totalUnallocatedLQTY);
+//     console.log("This is the total final unallocated lqty offset", finalState.totalUnallocatedOffset);
+
+//     // return initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset ;
+//     assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
+// }

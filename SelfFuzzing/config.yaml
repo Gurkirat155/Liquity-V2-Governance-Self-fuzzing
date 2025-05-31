@@ -39,5 +39,6 @@ filterFunctions: [
   "SelfCryticTester.invariant_initiativeShouldReturnSameStatus()",
   # "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256)",
   "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8,uint256)",
+  "SelfCryticTester.invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(uint8,uint8)",
   # "Governance.getLatestVotingThreshold()",  
 ]

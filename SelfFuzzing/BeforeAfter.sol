@@ -5,7 +5,7 @@ import {SelfSetup} from "./SelfSetup.sol";
 import {IGovernance} from "../src/interfaces/IGovernance.sol";
 import {IBribeInitiative} from "../src/interfaces/IBribeInitiative.sol";
 // import {Asserts} from "@chimera/Asserts.sol";
-
+import {IUserProxy} from "../src/interfaces/IUserProxy.sol";
 
 abstract contract BeforeAfter is SelfSetup {
 
@@ -16,6 +16,12 @@ abstract contract BeforeAfter is SelfSetup {
         mapping(address initiative => mapping(address user => mapping(uint256 epoch => bool claimed))) claimedBribeForInitiativeAtEpoch;
         mapping(address user => uint256 lqtyBalance) userLqtyBalance;
         mapping(address user => uint256 lusdBalance) userLusdBalance;
+    }
+
+    struct Accumulator {
+        uint256 totalStaked;
+        uint256 totalUnallocatedLQTY;
+        uint256 totalUnallocatedOffset;
     }
 
     Vars _before;
@@ -57,5 +63,22 @@ abstract contract BeforeAfter is SelfSetup {
             _after.userLusdBalance[users[i]] = lusd.balanceOf(users[i]);
         }
     } 
+
+    function accumulateUserStates(address[] memory localUsers) internal view returns (Accumulator memory acc) {
+        for (uint256 i = 0; i < localUsers.length; i++) {
+            address user = localUsers[i];
+            address proxy = governance.deriveUserProxyAddress(user);
+
+            if (proxy.code.length == 0) continue;
+
+            uint256 staked = IUserProxy(proxy).staked();
+
+            (uint256 unallocatedLQTY, uint256 unallocatedOffset, ,) = governance.userStates(user);
+
+            acc.totalStaked += staked;
+            acc.totalUnallocatedLQTY += unallocatedLQTY;
+            acc.totalUnallocatedOffset += unallocatedOffset;
+        }
+    }
 
 }
