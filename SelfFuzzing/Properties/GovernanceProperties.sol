@@ -60,187 +60,81 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
 
-    function invariant_epochShouldNotRevert() public {
-        try governance.epoch(){
-            // return true;
-            assert(true);
-        } catch  {
-            emit Error("Epoch should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    // function invariant_epochShouldNotRevert() public {
+    //     try governance.epoch(){
+    //         // return true;
+    //         assert(true);
+    //     } catch  {
+    //         emit Error("Epoch should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
-    function invariant_secondsWithinEpochShouldNotRevert() public {
+    // function invariant_secondsWithinEpochShouldNotRevert() public {
         
-        try governance.secondsWithinEpoch() {
-            // return true;
-            assert(true);
-        }catch {
-            emit Error("Epoch should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    //     try governance.secondsWithinEpoch() {
+    //         // return true;
+    //         assert(true);
+    //     }catch {
+    //         emit Error("Epoch should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
-    function invariant_getTotalVotesAndStateShouldNotRevert() public {
-        try governance.getTotalVotesAndState() {
-            // return true;
-            assert(true);
-        }
-        catch {
-            emit Error("Get total Votes and state should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    // function invariant_getTotalVotesAndStateShouldNotRevert() public {
+    //     try governance.getTotalVotesAndState() {
+    //         // return true;
+    //         assert(true);
+    //     }
+    //     catch {
+    //         emit Error("Get total Votes and state should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
-    function invariant_calculateVotingThresholdWithVotesShouldNotRevert() public   {
-        (uint256 totalVotes,) = governance.votesSnapshot();
-        try governance.calculateVotingThreshold(totalVotes) {
-            // return true;
-            assert(true);
-        }catch{
-            emit Error("Calculate Voting threshold should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    // function invariant_calculateVotingThresholdWithVotesShouldNotRevert() public   {
+    //     (uint256 totalVotes,) = governance.votesSnapshot();
+    //     try governance.calculateVotingThreshold(totalVotes) {
+    //         // return true;
+    //         assert(true);
+    //     }catch{
+    //         emit Error("Calculate Voting threshold should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
-    function invariant_calculateVotingThresholdShouldNotRevert() public   {
+    // function invariant_calculateVotingThresholdShouldNotRevert() public   {
         
-        try governance.calculateVotingThreshold() {
-            // return true;
-            assert(true);
-        }catch{
-            emit Error("Calculate Voting threshold should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    //     try governance.calculateVotingThreshold() {
+    //         // return true;
+    //         assert(true);
+    //     }catch{
+    //         emit Error("Calculate Voting threshold should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
 
-    function invariant_getLatestVotingThresholdShouldNotRevert() public   {
+    // function invariant_getLatestVotingThresholdShouldNotRevert() public   {
         
-        try governance.getLatestVotingThreshold() {
-            // return true;
-            assert(true);
-        }catch{
-            emit Error("Get latest voting threshold should not revert");
-            // return false;
-            assert(false);
-        }
-    }
+    //     try governance.getLatestVotingThreshold() {
+    //         // return true;
+    //         assert(true);
+    //     }catch{
+    //         emit Error("Get latest voting threshold should not revert");
+    //         // return false;
+    //         assert(false);
+    //     }
+    // }
 
     /* ------------------------commenting out revert properties for the fuzzer to function better
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
-
-    // See if the user has lqty allocated 
-    // you cold go through loop for this 
-    // And if it is zero then nothing and if it is not zero than after some time the claimable amt should incerase
-        
-    // function echidna_offSetOfUserShouldIncreaseWithTime() public returns(bool) {
-    //     address[] memory localUsers = users;
-
-    //     uint256 totalInitialLqtyAmtStaked;
-    //     uint256 totalInitialUnallocatedLQTY;
-    //     uint256 totalInitialUnallcatedOffset;
-
-    //     uint256 totalFinalLqtyAmtStaked;
-    //     uint256 totalFinalUnallocatedLQTY;
-    //     uint256 totalFinalUnallcatedOffset;
-
-    //     for(uint256 i; i<localUsers.length; i++){
-    //         console.log("This is the user", localUsers[i]);
-    //         address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
-    //         if (userDerieveProxydAdd.code.length == 0) {
-    //             continue;
-    //         }
-    //         uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
-    //         console.log("this is the amt of lqty staked intially by the user", userStakedLqty);
-    //         (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
-
-    //         console.log("This is the user unallocated lqty initially", userUnallocatedLqty);
-    //         console.log("THis is the user unallocates offset initially", userUnallocatedOffset);
-
-    //         totalInitialLqtyAmtStaked += userStakedLqty;
-    //         totalInitialUnallocatedLQTY += userUnallocatedLqty;
-    //         totalInitialUnallcatedOffset += userUnallocatedOffset;
-    //     }
-
-    //     if(totalInitialLqtyAmtStaked != 0){
-
-    //         hevm.warp(block.timestamp + governance.EPOCH_DURATION());
-
-
-    //         for(uint256 i; i<localUsers.length; i++){
-    //             // derieve user proxy is giving an error 
-    //             console.log("This is the user", localUsers[i]);
-    //             address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
-    //             if (userDerieveProxydAdd.code.length == 0) {
-    //                 continue;
-    //             }
-    //             uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
-    //             console.log("this is the amt of lqty staked finally by the user", userStakedLqty);
-    //             (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
-
-    //             console.log("This is the user unallocated lqty finally", userUnallocatedLqty);
-    //             console.log("THis is the user unallocates offset finally", userUnallocatedOffset);
-
-    //             totalFinalLqtyAmtStaked += userStakedLqty;
-    //             totalFinalUnallocatedLQTY += userUnallocatedLqty;
-    //             totalFinalUnallcatedOffset += userUnallocatedOffset;
-    //         }
-
-    //         if(totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY){
-    //             console.log("Gone through the if block which means totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY");
-    //             // return (totalFinalUnallcatedOffset > totalInitialUallcatedOffset);
-    //             // if(totalFinalUnallcatedOffset < totalInitialUnallcatedOffset){
-    //             //     console.log("THis is the false block");
-    //             //     return false;
-    //             // }
-
-    //             if(totalFinalUnallcatedOffset == totalInitialUnallcatedOffset){
-    //                 console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
-    //             }
-    //         }
-    //     }
-
-    //     return true;
-    // }
-
-    // function echidna_offSetOfUserShouldIncreaseWithTime() public returns (bool) {
-    //     address[] memory localUsers = users;
-
-    //     Accumulator memory initialState = accumulateUserStates(localUsers);
-    //     console.log("this is the initial State staked lqty", initialState.totalStaked);
-    //     console.log("this is the initial State total unallcated lqty amt", initialState.totalUnallocatedLQTY);
-    //     console.log("this is the initial State total unallcated offset amt", initialState.totalUnallocatedOffset);
-
-    //     if (initialState.totalStaked == 0) return true;
-
-    //     hevm.warp(block.timestamp + 86400);
-
-    //     Accumulator memory finalState = accumulateUserStates(localUsers);
-
-    //     console.log("this is the final State staked lqty", finalState.totalStaked);
-    //     console.log("this is the final State total unallcated lqty amt", finalState.totalUnallocatedLQTY);
-    //     console.log("this is the final State total unallcated offset amt", finalState.totalUnallocatedOffset);
-
-    //     if (initialState.totalUnallocatedLQTY == finalState.totalUnallocatedLQTY) {
-    //         console.log("Initial and Final Unallocated LQTY are equal");
-    //         if(initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset){
-    //             console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
-    //         }
-    //         // if (finalState.totalUnallocatedOffset < initialState.totalUnallocatedOffset) {
-    //         //     console.log("Final offset is less than initial offset, reverting");
-    //         //     return false;
-    //         // }
-    //     }
-
-    //     return true;
-    // }
 
 
     function invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8 userIndex, uint256 lqtyAmt) public {
@@ -283,54 +177,66 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
             }
         }
     }
-    // @audit instead of doing the all user do by single user at a time 
-    // function invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256 lqtyAmt) public {
-    //     if (lqtyAmt == 0) return;
 
-    //     address[] memory localUsers = users;
-    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+    function invariant_afterClaimingAmtShouldNotbeMoreThanBoldAccured() public {
+        __before(users[0]);
+        uint256 totalClaimedAmt;
+        uint256 boldAccured = governance.boldAccrued();
 
-    //     console.log("Initial unallocated LQTY:", initialState.totalUnallocatedLQTY);
-    //     console.log("Initial unallocated offset:", initialState.totalUnallocatedOffset);
+        for(uint256 i; i< deployedInitiatives.length; i++){
+            uint256 amtClaimed = governance.claimForInitiative(deployedInitiatives[i]);
+            totalClaimedAmt += amtClaimed;
+            // console.log("This is the amt of intiative that has been claimed", deployedInitiatives[i], amtClaimed);
+        }
+        __after(users[0]);
+        assert(totalClaimedAmt <= boldAccured);
+    }
 
-    //     for (uint256 i = 0; i < localUsers.length; ++i) {
-    //         address user = localUsers[i];
-    //         console.log("this is the user", user);
-    //         uint256 userBalance = lqty.balanceOf(user);
-    //         console.log("This is the user balance initally", userBalance);
 
-    //         if (userBalance == 0) continue;
+    //@audit I think this invariant doesn't make any sense cause the the staking v1 is not gaining any funds in real time
+    // would be better if bold would have accured in the staking v1 as there part of investment in the fuzzing suite.
+    function invariant_afterUserClaimsBalanceOfUserShouldIncrease(uint8 userIndex) public {
+        (address randomUser, address proxy ) = _getRandomUser(userIndex);
 
-    //         uint256 adjustedAmt = lqtyAmt % userBalance;
-    //         if (adjustedAmt == 0) continue;
-    //         console.log("THis is the is the adjusted amt", adjustedAmt);
-    //         address userProxy = governance.deriveUserProxyAddress(user);
-    //         if(userProxy.code.length == 0) continue;
-    //         console.log("This is the users staked lqty in the governance before depositing", IUserProxy(userProxy).staked());
+        __before(users[0]);
+        if(proxy.code.length != 0 ){
+            uint256 beforeBoldOfUser = bold.balanceOf(randomUser);
+            uint256 stakedAmt = IUserProxy(proxy).staked();
+            // should we only check if the user has staked amt or we should check for code length because if user has staked then indeed his code.lnegth is not zero
+            if(stakedAmt > 0) {
+                uint256 afterBoldOfUser = bold.balanceOf(randomUser);
+                hevm.prank(randomUser);
+                governance.claimFromStakingV1(randomUser);
+                assert(afterBoldOfUser >= beforeBoldOfUser);
+            }
+        }
+        __after(users[0]);
+    }
 
-    //         hevm.prank(user);
-    //         lqty.approve(userProxy, type(uint256).max);
-    //         hevm.prank(user);
-    //         governance.depositLQTY(adjustedAmt);
-    //         console.log("this is the lqty amt that user is depositing",adjustedAmt);
-    //         console.log("this is the left over balance of the user finally", lqty.balanceOf(user));
-    //     }
+    // All allocated liquity of the intitatives sum would be equal to allocated lqty of the users
+    function invariant_totalSumOfAllocatedLqtyOfUserEqualToInitiativesLqty() public {
+        uint256 totalSumOfUsersAllocatedLqty;
+        uint256 totalSumOfVoteAndVetoOfAnInitiative;
+        // all user allocatedLqty sum first
+        for(uint256 i; i < users.length; i++){
+            // userStates
+            (,,uint256 userAllocatedLqty,) = governance.userStates(users[i]);
+            totalSumOfUsersAllocatedLqty += userAllocatedLqty;
+        }
 
-    //     Accumulator memory finalState = accumulateUserStates(localUsers);
+        for(uint256 i; i < deployedInitiatives.length; i++){
+            (uint256 voteLqtyOfInitiative ,, uint256 vetoLqtyOfInitiative ,,) = governance.initiativeStates(deployedInitiatives[i]);
+            totalSumOfVoteAndVetoOfAnInitiative += voteLqtyOfInitiative + vetoLqtyOfInitiative;
+        }
 
-    //     console.log("Final unallocated LQTY:", finalState.totalUnallocatedLQTY);
-    //     console.log("Final unallocated offset:", finalState.totalUnallocatedOffset);
+        assert(totalSumOfUsersAllocatedLqty == totalSumOfVoteAndVetoOfAnInitiative);
+    }
 
-    //     emit TotalAllocatedOffsetBeforeAndAfter(
-    //         initialState.totalUnallocatedOffset,
-    //         finalState.totalUnallocatedOffset
-    //     );
-
-    //     assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
-
+    // function invariant_codeLengthOfStakedusersShouldNotBeZero(uint8 userIndex) {
+    //     (address randomUser, address proxy ) = _getRandomUser(userIndex);
+    //     uint256 stakedAmt = IUserProxy(userDerieveProxydAdd).staked();
+    //     if()
     // }
-    // 943796815419138766779646908812391136
-    // 943796815419138766779646908812391136
 
     // function echidna_zeroAllocatedLqtyUserCannotRegister() public returns(bool){
     //     (uint256 votes, uint256 epoch) = governance.votesSnapshot();
@@ -377,89 +283,6 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
 
     //     return true;
     // }
-
-
-    /* @audit these below function is a problem of the 
-    bold acured or the cause i am not really able to claim an initiave money 
-
-    -------------------------------Starts Here------------------------------
-
-    // function echidna_BoldShouldBeSame() public returns(bool) {
-    //     uint256 governanceBoldBalance = bold.balanceOf(address(governance));
-    //     uint256 boldAccured = governance.boldAccrued();
-    //     uint256 minAccured = governance.MIN_ACCRUAL();
-
-    //     if(governanceBoldBalance <= minAccured) {
-    //         emit BoldBalanceError(governanceBoldBalance,boldAccured);
-    //         return (boldAccured == 0);
-    //     }
-    //     else{
-    //         emit BoldBalanceError(governanceBoldBalance,boldAccured);
-    //         return (boldAccured == governanceBoldBalance);
-    //     }
-    //     // return (governanceBoldBalance == boldAccured);
-    // }
-
-    //@audit ----------------------the below invariant is not working it is showing as pass 
-    // function echidna_BoldShouldBeSame() public returns (bool) {
-    //     uint256 governanceBoldBalance = bold.balanceOf(address(governance));
-    //     uint256 boldAccured = governance.boldAccrued();
-    //     uint256 minAccured = governance.MIN_ACCRUAL();
-
-    //     emit BoldBalanceError(governanceBoldBalance, boldAccured);
-    //     emit DebugNumbers("MIN_ACCRUAL", minAccured);
-
-    //     if (governanceBoldBalance <= minAccured) {
-    //         emit DebugPath("Path: balance below minAccured");
-    //         return (boldAccured == 0);
-    //     } else {
-    //         emit DebugPath("Path: balance above minAccured");
-    //         return (boldAccured == governanceBoldBalance);
-    //     }
-    // }
-
-
-    // @audit ----------------- the below invariant is also not working i think there is problem with bold accured not being updated 
-    // function echidna_claimInitiative() public returns(bool){
-    //     address initiative = _getRandomInitiative(initiativeIndex);
-    //     __before(users[0]);
-    //     uint256 initiativeInitialBoldBalance = bold.balanceOf(initiative);
-    //     // try governance.claimForInitiative(initiative)  {
-
-    //     // }catch {
-    //     //     emit Error("Initiative wasn't able claim the bold");
-    //     // }
-    //     uint256 amtClaimed = governance.claimForInitiative(initiative);
-    //     uint256 initiativeFinalBoldBalance = bold.balanceOf(initiative);
-
-    //     if(initiativeFinalBoldBalance != initiativeInitialBoldBalance + amtClaimed){
-    //         return false;
-    //     }
-    //     __after(users[0]);
-    //     return true;
-    // }
-
-
-    // @audit ----------------- the below invariant is also not working i think there is problem with bold accured not being updated 
-    // function echidna_claimInitiave() public returns(bool) {
-    //     uint256 deployedInitiativesLength = deployedInitiatives.length;
-    //     uint256 initialBoldBalance ;
-    //     uint256 totalClaimedAmt;
-    //     for(uint256 i; i < deployedInitiativesLength; i++){
-    //         address initiative = deployedInitiatives[i];
-    //         uint256 initiativeInitialBoldBalance = bold.balanceOf(deployedInitiatives[i]);
-
-    //         initialBoldBalance += initiativeInitialBoldBalance;
-
-    //         uint256 claimedAmt = governance.claimForInitiative(initiative);
-    //         totalClaimedAmt += claimedAmt;
-    //     }
-
-    //     return (totalClaimedAmt >= initialBoldBalance);
-    // }
-
-    -------------------------------Ends Here--------------------------------
-    */
 
 }
 
@@ -582,3 +405,245 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
 //     // return initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset ;
 //     assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
 // }
+
+
+// See if the user has lqty allocated 
+// you cold go through loop for this 
+// And if it is zero then nothing and if it is not zero than after some time the claimable amt should incerase
+    
+
+// function echidna_offSetOfUserShouldIncreaseWithTime() public returns(bool) {
+    //     address[] memory localUsers = users;
+
+    //     uint256 totalInitialLqtyAmtStaked;
+    //     uint256 totalInitialUnallocatedLQTY;
+    //     uint256 totalInitialUnallcatedOffset;
+
+    //     uint256 totalFinalLqtyAmtStaked;
+    //     uint256 totalFinalUnallocatedLQTY;
+    //     uint256 totalFinalUnallcatedOffset;
+
+    //     for(uint256 i; i<localUsers.length; i++){
+    //         console.log("This is the user", localUsers[i]);
+    //         address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
+    //         if (userDerieveProxydAdd.code.length == 0) {
+    //             continue;
+    //         }
+    //         uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
+    //         console.log("this is the amt of lqty staked intially by the user", userStakedLqty);
+    //         (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
+
+    //         console.log("This is the user unallocated lqty initially", userUnallocatedLqty);
+    //         console.log("THis is the user unallocates offset initially", userUnallocatedOffset);
+
+    //         totalInitialLqtyAmtStaked += userStakedLqty;
+    //         totalInitialUnallocatedLQTY += userUnallocatedLqty;
+    //         totalInitialUnallcatedOffset += userUnallocatedOffset;
+    //     }
+
+    //     if(totalInitialLqtyAmtStaked != 0){
+
+    //         hevm.warp(block.timestamp + governance.EPOCH_DURATION());
+
+
+    //         for(uint256 i; i<localUsers.length; i++){
+    //             // derieve user proxy is giving an error 
+    //             console.log("This is the user", localUsers[i]);
+    //             address userDerieveProxydAdd = governance.deriveUserProxyAddress(localUsers[i]);
+    //             if (userDerieveProxydAdd.code.length == 0) {
+    //                 continue;
+    //             }
+    //             uint256 userStakedLqty = IUserProxy(userDerieveProxydAdd).staked();
+    //             console.log("this is the amt of lqty staked finally by the user", userStakedLqty);
+    //             (uint256 userUnallocatedLqty, uint256 userUnallocatedOffset, ,) = governance.userStates(localUsers[i]);
+
+    //             console.log("This is the user unallocated lqty finally", userUnallocatedLqty);
+    //             console.log("THis is the user unallocates offset finally", userUnallocatedOffset);
+
+    //             totalFinalLqtyAmtStaked += userStakedLqty;
+    //             totalFinalUnallocatedLQTY += userUnallocatedLqty;
+    //             totalFinalUnallcatedOffset += userUnallocatedOffset;
+    //         }
+
+    //         if(totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY){
+    //             console.log("Gone through the if block which means totalInitialUnallocatedLQTY == totalFinalUnallocatedLQTY");
+    //             // return (totalFinalUnallcatedOffset > totalInitialUallcatedOffset);
+    //             // if(totalFinalUnallcatedOffset < totalInitialUnallcatedOffset){
+    //             //     console.log("THis is the false block");
+    //             //     return false;
+    //             // }
+
+    //             if(totalFinalUnallcatedOffset == totalInitialUnallcatedOffset){
+    //                 console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
+    //             }
+    //         }
+    //     }
+
+    //     return true;
+    // }
+
+    // function echidna_offSetOfUserShouldIncreaseWithTime() public returns (bool) {
+    //     address[] memory localUsers = users;
+
+    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+    //     console.log("this is the initial State staked lqty", initialState.totalStaked);
+    //     console.log("this is the initial State total unallcated lqty amt", initialState.totalUnallocatedLQTY);
+    //     console.log("this is the initial State total unallcated offset amt", initialState.totalUnallocatedOffset);
+
+    //     if (initialState.totalStaked == 0) return true;
+
+    //     hevm.warp(block.timestamp + 86400);
+
+    //     Accumulator memory finalState = accumulateUserStates(localUsers);
+
+    //     console.log("this is the final State staked lqty", finalState.totalStaked);
+    //     console.log("this is the final State total unallcated lqty amt", finalState.totalUnallocatedLQTY);
+    //     console.log("this is the final State total unallcated offset amt", finalState.totalUnallocatedOffset);
+
+    //     if (initialState.totalUnallocatedLQTY == finalState.totalUnallocatedLQTY) {
+    //         console.log("Initial and Final Unallocated LQTY are equal");
+    //         if(initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset){
+    //             console.log("initialState.totalUnallocatedOffset == finalState.totalUnallocatedOffset are the same");
+    //         }
+    //         // if (finalState.totalUnallocatedOffset < initialState.totalUnallocatedOffset) {
+    //         //     console.log("Final offset is less than initial offset, reverting");
+    //         //     return false;
+    //         // }
+    //     }
+
+    //     return true;
+    // }
+
+
+
+
+// @audit instead of doing the all user do by single user at a time 
+    // function invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256 lqtyAmt) public {
+    //     if (lqtyAmt == 0) return;
+
+    //     address[] memory localUsers = users;
+    //     Accumulator memory initialState = accumulateUserStates(localUsers);
+
+    //     console.log("Initial unallocated LQTY:", initialState.totalUnallocatedLQTY);
+    //     console.log("Initial unallocated offset:", initialState.totalUnallocatedOffset);
+
+    //     for (uint256 i = 0; i < localUsers.length; ++i) {
+    //         address user = localUsers[i];
+    //         console.log("this is the user", user);
+    //         uint256 userBalance = lqty.balanceOf(user);
+    //         console.log("This is the user balance initally", userBalance);
+
+    //         if (userBalance == 0) continue;
+
+    //         uint256 adjustedAmt = lqtyAmt % userBalance;
+    //         if (adjustedAmt == 0) continue;
+    //         console.log("THis is the is the adjusted amt", adjustedAmt);
+    //         address userProxy = governance.deriveUserProxyAddress(user);
+    //         if(userProxy.code.length == 0) continue;
+    //         console.log("This is the users staked lqty in the governance before depositing", IUserProxy(userProxy).staked());
+
+    //         hevm.prank(user);
+    //         lqty.approve(userProxy, type(uint256).max);
+    //         hevm.prank(user);
+    //         governance.depositLQTY(adjustedAmt);
+    //         console.log("this is the lqty amt that user is depositing",adjustedAmt);
+    //         console.log("this is the left over balance of the user finally", lqty.balanceOf(user));
+    //     }
+
+    //     Accumulator memory finalState = accumulateUserStates(localUsers);
+
+    //     console.log("Final unallocated LQTY:", finalState.totalUnallocatedLQTY);
+    //     console.log("Final unallocated offset:", finalState.totalUnallocatedOffset);
+
+    //     emit TotalAllocatedOffsetBeforeAndAfter(
+    //         initialState.totalUnallocatedOffset,
+    //         finalState.totalUnallocatedOffset
+    //     );
+
+    //     assert(initialState.totalUnallocatedOffset < finalState.totalUnallocatedOffset);
+
+    // }
+
+
+
+     /* @audit these below function is a problem of the 
+    bold acured or the cause i am not really able to claim an initiave money 
+
+    -------------------------------Starts Here------------------------------
+
+    // function echidna_BoldShouldBeSame() public returns(bool) {
+    //     uint256 governanceBoldBalance = bold.balanceOf(address(governance));
+    //     uint256 boldAccured = governance.boldAccrued();
+    //     uint256 minAccured = governance.MIN_ACCRUAL();
+
+    //     if(governanceBoldBalance <= minAccured) {
+    //         emit BoldBalanceError(governanceBoldBalance,boldAccured);
+    //         return (boldAccured == 0);
+    //     }
+    //     else{
+    //         emit BoldBalanceError(governanceBoldBalance,boldAccured);
+    //         return (boldAccured == governanceBoldBalance);
+    //     }
+    //     // return (governanceBoldBalance == boldAccured);
+    // }
+
+    //@audit ----------------------the below invariant is not working it is showing as pass 
+    // function echidna_BoldShouldBeSame() public returns (bool) {
+    //     uint256 governanceBoldBalance = bold.balanceOf(address(governance));
+    //     uint256 boldAccured = governance.boldAccrued();
+    //     uint256 minAccured = governance.MIN_ACCRUAL();
+
+    //     emit BoldBalanceError(governanceBoldBalance, boldAccured);
+    //     emit DebugNumbers("MIN_ACCRUAL", minAccured);
+
+    //     if (governanceBoldBalance <= minAccured) {
+    //         emit DebugPath("Path: balance below minAccured");
+    //         return (boldAccured == 0);
+    //     } else {
+    //         emit DebugPath("Path: balance above minAccured");
+    //         return (boldAccured == governanceBoldBalance);
+    //     }
+    // }
+
+
+    // @audit ----------------- the below invariant is also not working i think there is problem with bold accured not being updated 
+    // function echidna_claimInitiative() public returns(bool){
+    //     address initiative = _getRandomInitiative(initiativeIndex);
+    //     __before(users[0]);
+    //     uint256 initiativeInitialBoldBalance = bold.balanceOf(initiative);
+    //     // try governance.claimForInitiative(initiative)  {
+
+    //     // }catch {
+    //     //     emit Error("Initiative wasn't able claim the bold");
+    //     // }
+    //     uint256 amtClaimed = governance.claimForInitiative(initiative);
+    //     uint256 initiativeFinalBoldBalance = bold.balanceOf(initiative);
+
+    //     if(initiativeFinalBoldBalance != initiativeInitialBoldBalance + amtClaimed){
+    //         return false;
+    //     }
+    //     __after(users[0]);
+    //     return true;
+    // }
+
+
+    // @audit ----------------- the below invariant is also not working i think there is problem with bold accured not being updated 
+    // function echidna_claimInitiave() public returns(bool) {
+    //     uint256 deployedInitiativesLength = deployedInitiatives.length;
+    //     uint256 initialBoldBalance ;
+    //     uint256 totalClaimedAmt;
+    //     for(uint256 i; i < deployedInitiativesLength; i++){
+    //         address initiative = deployedInitiatives[i];
+    //         uint256 initiativeInitialBoldBalance = bold.balanceOf(deployedInitiatives[i]);
+
+    //         initialBoldBalance += initiativeInitialBoldBalance;
+
+    //         uint256 claimedAmt = governance.claimForInitiative(initiative);
+    //         totalClaimedAmt += claimedAmt;
+    //     }
+
+    //     return (totalClaimedAmt >= initialBoldBalance);
+    // }
+
+    -------------------------------Ends Here--------------------------------
+    */

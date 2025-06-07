@@ -347,19 +347,19 @@ interface IGovernance {
     //////////////////////////////////////////////////////////////*/
 
     enum InitiativeStatus {
-        NONEXISTENT,
+        NONEXISTENT,// 0 
         /// This Initiative Doesn't exist | This is never returned
-        WARM_UP,
+        WARM_UP, // 1
         /// This epoch was just registered
-        SKIP,
+        SKIP, // 2
         /// This epoch will result in no rewards and no unregistering
-        CLAIMABLE,
+        CLAIMABLE, // 3
         /// This epoch will result in claiming rewards
-        CLAIMED,
+        CLAIMED, // 4
         /// The rewards for this epoch have been claimed
-        UNREGISTERABLE,
+        UNREGISTERABLE, // 5
         /// Can be unregistered
-        DISABLED // It was already Unregistered
+        DISABLED // 6 // It was already Unregistered
 
     }
 

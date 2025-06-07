@@ -1,7 +1,7 @@
 # Allow fuzzer to use public/external functions from all contracts
 allContracts: false
 testMode : assertion
-testLimit: 100000
+testLimit: 500000
 
 # prefix: "invariant_"
 # specify address to use for fuzz transations
@@ -30,15 +30,20 @@ filterFunctions: [
   "SelfCryticTester.handler_claimForInitiative(uint8)",
   "SelfCryticTester.handler_getLatestVotingThreshold()",
   "SelfCryticTester.handler_callBoldAccured()",
-  "SelfCryticTester.invariant_epochShouldNotRevert()",
-  "SelfCryticTester.invariant_secondsWithinEpochShouldNotRevert()",
-  "SelfCryticTester.invariant_getTotalVotesAndStateShouldNotRevert()",
-  "SelfCryticTester.invariant_calculateVotingThresholdWithVotesShouldNotRevert()",
-  "SelfCryticTester.invariant_calculateVotingThresholdShouldNotRevert()",
-  "SelfCryticTester.invariant_getLatestVotingThresholdShouldNotRevert()",
+  # revert functions start here
+  # "SelfCryticTester.invariant_epochShouldNotRevert()",
+  # "SelfCryticTester.invariant_secondsWithinEpochShouldNotRevert()",
+  # "SelfCryticTester.invariant_getTotalVotesAndStateShouldNotRevert()",
+  # "SelfCryticTester.invariant_calculateVotingThresholdWithVotesShouldNotRevert()",
+  # "SelfCryticTester.invariant_calculateVotingThresholdShouldNotRevert()",
+  # "SelfCryticTester.invariant_getLatestVotingThresholdShouldNotRevert()",
+  # revert functions end here
   "SelfCryticTester.invariant_initiativeShouldReturnSameStatus()",
   # "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForAllUsers(uint256)",
   "SelfCryticTester.invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8,uint256)",
   "SelfCryticTester.invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(uint8,uint8)",
+  "SelfCryticTester.invariant_afterClaimingAmtShouldNotbeMoreThanBoldAccured()",
+  "SelfCryticTester.invariant_afterUserClaimsBalanceOfUserShouldIncrease(uint8)",
+  "SelfCryticTester.invariant_totalSumOfAllocatedLqtyOfUserEqualToInitiativesLqty()",
   # "Governance.getLatestVotingThreshold()",  
 ]

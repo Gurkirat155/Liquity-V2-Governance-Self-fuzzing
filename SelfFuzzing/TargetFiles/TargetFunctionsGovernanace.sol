@@ -128,9 +128,11 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         __after(randomUser);
     }
 
-    function handler_makeInitiative() public {    
+    function handler_makeInitiative() public {  
+        __before(users[0]); 
         address initiative = address(new BribeInitiative(address(governance), address(lusd), address(lqty)));
         deployedInitiatives.push(initiative);
+        __after(users[0]);
     }
 
     function handler_resetAllocations(uint8 userIndex) public {
@@ -225,12 +227,16 @@ contract TargetFunctionsGovernanace is GovernanceProperties{
         __after(users[0]);
     }
 
-    function handler_getLatestVotingThreshold() public view {
+    function handler_getLatestVotingThreshold() public  {
+        __before(users[0]);
         governance.getLatestVotingThreshold();
+        __after(users[0]);
     }
 
-    function handler_callBoldAccured() public view{
+    function handler_callBoldAccured() public {
+        __before(users[0]);
         governance.boldAccrued();
+        __after(users[0]);
     }
 
 }

@@ -365,6 +365,23 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
         invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(245, 309485009821345068724781054);
     }
 
+    function test_invariantInitiativeShouldReturnSameStatusBUG() public {
+        // reproducers file 6807240755369136064 
+        // It is a solved the as i was not updating one invariant function in with before and after checks in the "invariant_afterClaimingAmtShouldNotbeMoreThanBoldAccured"
+        handler_unclampedDepositLqtyUser(1,2);
+        handler_allocateLqty(1,0,31324933271371182215799152605078146906271012556576876981442901,244914609256786800571245876368666563163504412833829747343878712622);
+
+        vm.warp(block.timestamp + 538692);
+
+        handler_claimStakingV1(0,0);
+
+        vm.warp(block.timestamp + 67037);
+
+        invariant_afterClaimingAmtShouldNotbeMoreThanBoldAccured();
+        handler_unclampedWithdrawUnallocatedLqty(0,0);
+        invariant_initiativeShouldReturnSameStatus();
+    }
+
 }
 //   This is governance 0x13136008B64FF592819B2FA6d43F2835C452020e
 //   This is userproxy 0xF4c9906A80739D2876932786F322e4A06152f418
