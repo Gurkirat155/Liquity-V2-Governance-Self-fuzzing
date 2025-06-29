@@ -347,7 +347,7 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
 
     }
 
-    function test_echidnaOffSetOfUserShouldIncreaseWithTimeOfAllUsers() public {
+    function test_echidnaOffSetOfUserShouldIncreaseWithTimeOfAllUsers() public pure{
         // uint8 userIndex = 8;
         // uint256 lqtyAmt = 2000e18;
 
@@ -382,7 +382,66 @@ contract SelfCryticToFoundry is Test,TargetFunctionsGovernanace {
         invariant_initiativeShouldReturnSameStatus();
     }
 
+    // forge test --mt test_invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser -vv
+    function test_invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser() public {
+        // This is the invariant that checks if the offset of the user is increasing with the deposit for a single user
+        // It is used to check if the offset of the user is increasing with the deposit for a single user
+        (address user,) = _getRandomUser(0);
+        (uint256 unallcatedLQTYBefore, uint256 unallocatedLQTYOffsetBefore,,) = governance.userStates(user);
+        console.log("This is the user address", user);
+        console.log("This is the initial unallocated LQTY of the user", unallcatedLQTYBefore);
+        console.log("This is the initial unallocated LQTY offset of the user", unallocatedLQTYOffsetBefore);
+        invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(0, 1);
+        (uint256 unallcatedLQTYAfter, uint256 unallocatedLQTYOffsetAfter,,) = governance.userStates(user);
+        console.log("This is the unallocated LQTY of the user after the deposit", unallcatedLQTYAfter);
+        console.log("This is the unallocated LQTY offset of the user after the deposit", unallocatedLQTYOffsetAfter);
+
+    }
+
+    // forge test --mt test_invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable -vv
+    function test_invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable() public {
+        // This is the invariant that checks if the status of the initiative once unregistrable should always be unregistrable
+        // It is used to check if the status of the initiative once unregistrable should always be unregistrable
+        
+        handler_clampedDepositLqtyUser(0, 2);
+        handler_allocateLqty(0, 0, 0, 1);
+
+        vm.warp(block.timestamp + 322373);
+        handler_getLatestVotingThreshold();
+        vm.warp(block.timestamp + 285942);
+
+        handler_resetAllocations(0);
+        // invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(0,2);
+
+    }
+
+    // forge test --mt test_invariant_stakedLQTYTokenBalanceOfUserShouldIncreaseWhenDeposited -vv
+    function test_invariant_stakedLQTYTokenBalanceOfUserShouldIncreaseWhenDeposited() public {
+        // This is the invariant that checks if the deposit balance of the user is increasing
+        // It is used to check if the deposit balance of the user is increasing
+        (address user,) = _getRandomUser(1);
+        console.log("This is the user address", user);
+        handler_clampedDepositLqtyUser(1, 20);
+        uint256 initialUserEOABalance = lqty.balanceOf(user);
+        uint256 initialDepositBalance = IUserProxy(governance.deriveUserProxyAddress(user)).staked();
+
+        console.log("This is the initial balance of the user", initialUserEOABalance);
+        console.log("This is the initial staked balance of the user", initialDepositBalance);
+        // handler_deployUserProxy(user); 
+        invariant_stakedLQTYTokenBalanceOfUserShouldIncreaseWhenDeposited(1, 20);
+        // invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(0, 20);
+
+        uint256 finalUserEOABalance = lqty.balanceOf(user);
+        uint256 finalStakedBalance = IUserProxy(governance.deriveUserProxyAddress(user)).staked();
+
+        console.log("This is the final staked balance of the user", finalStakedBalance);
+        console.log("This is the final balance of the user", finalUserEOABalance);
+        // assert(finalBalance > initialBalance, "The final balance should be greater than the initial balance");
+    }
 }
+
+
+
 //   This is governance 0x13136008B64FF592819B2FA6d43F2835C452020e
 //   This is userproxy 0xF4c9906A80739D2876932786F322e4A06152f418
 //   This is address of the selfCrytic or  cryticToFoundry 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496

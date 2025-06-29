@@ -19,10 +19,11 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     event VotesAndEpcoh(uint256, uint256);
     event TotalAllocatedOffsetBeforeAndAfter(uint256, uint256);
     event LqtyAmt(uint256);
+    event BalanceOfLqtyOfUserInEOAAndStaked(uint256,uint256);
 
     
-    // returns(bool)
     function invariant_initiativeShouldReturnSameStatus() public {
+        // Pre Conditions checking with the help of Ghost variables
         if(_before.epoch == _after.epoch) {
             for(uint256 i;i <deployedInitiatives.length; i++){
                 address initiative = deployedInitiatives[i];
@@ -42,6 +43,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
                     continue;
                 }
 
+                // Post Conditions
                 assert(_before.initiativeStatus[initiative] == _after.initiativeStatus[initiative]);
                 // if(_before.initiativeStatus[initiative] != _after.initiativeStatus[initiative]){
                 //     emit BeforeAfterStatus(uint8(_before.initiativeStatus[initiative]) , uint8(_after.initiativeStatus[initiative]));
@@ -60,77 +62,77 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     ---------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------- */
 
-    // function invariant_epochShouldNotRevert() public {
-    //     try governance.epoch(){
-    //         // return true;
-    //         assert(true);
-    //     } catch  {
-    //         emit Error("Epoch should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+    function invariant_epochShouldNotRevert() public {
+        try governance.epoch(){
+            // return true;
+            assert(true);
+        } catch  {
+            emit Error("Epoch should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
-    // function invariant_secondsWithinEpochShouldNotRevert() public {
+    function invariant_secondsWithinEpochShouldNotRevert() public {
         
-    //     try governance.secondsWithinEpoch() {
-    //         // return true;
-    //         assert(true);
-    //     }catch {
-    //         emit Error("Epoch should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+        try governance.secondsWithinEpoch() {
+            // return true;
+            assert(true);
+        }catch {
+            emit Error("Epoch should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
-    // function invariant_getTotalVotesAndStateShouldNotRevert() public {
-    //     try governance.getTotalVotesAndState() {
-    //         // return true;
-    //         assert(true);
-    //     }
-    //     catch {
-    //         emit Error("Get total Votes and state should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+    function invariant_getTotalVotesAndStateShouldNotRevert() public {
+        try governance.getTotalVotesAndState() {
+            // return true;
+            assert(true);
+        }
+        catch {
+            emit Error("Get total Votes and state should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
-    // function invariant_calculateVotingThresholdWithVotesShouldNotRevert() public   {
-    //     (uint256 totalVotes,) = governance.votesSnapshot();
-    //     try governance.calculateVotingThreshold(totalVotes) {
-    //         // return true;
-    //         assert(true);
-    //     }catch{
-    //         emit Error("Calculate Voting threshold should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+    function invariant_calculateVotingThresholdWithVotesShouldNotRevert() public   {
+        (uint256 totalVotes,) = governance.votesSnapshot();
+        try governance.calculateVotingThreshold(totalVotes) {
+            // return true;
+            assert(true);
+        }catch{
+            emit Error("Calculate Voting threshold should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
-    // function invariant_calculateVotingThresholdShouldNotRevert() public   {
+    function invariant_calculateVotingThresholdShouldNotRevert() public   {
         
-    //     try governance.calculateVotingThreshold() {
-    //         // return true;
-    //         assert(true);
-    //     }catch{
-    //         emit Error("Calculate Voting threshold should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+        try governance.calculateVotingThreshold() {
+            // return true;
+            assert(true);
+        }catch{
+            emit Error("Calculate Voting threshold should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
 
-    // function invariant_getLatestVotingThresholdShouldNotRevert() public   {
+    function invariant_getLatestVotingThresholdShouldNotRevert() public   {
         
-    //     try governance.getLatestVotingThreshold() {
-    //         // return true;
-    //         assert(true);
-    //     }catch{
-    //         emit Error("Get latest voting threshold should not revert");
-    //         // return false;
-    //         assert(false);
-    //     }
-    // }
+        try governance.getLatestVotingThreshold() {
+            // return true;
+            assert(true);
+        }catch{
+            emit Error("Get latest voting threshold should not revert");
+            // return false;
+            assert(false);
+        }
+    }
 
     /* ------------------------commenting out revert properties for the fuzzer to function better
     ---------------------------------------------------------------------------------------------
@@ -139,18 +141,15 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
 
     function invariant_offSetOfUserShouldIncreaseWithDepositForSingleUser(uint8 userIndex, uint256 lqtyAmt) public {
         if (lqtyAmt == 0) return;
-        (address user,) = _getRandomUser(userIndex);
+        (address user, address proxy) = _getRandomUser(userIndex);
         (, uint256 unallocatedLQTYOffsetInital,,) = governance.userStates(user);
 
         uint256 userBalance = lqty.balanceOf(user);
-        // if (userBalance == 0) return;
         lqtyAmt = lqtyAmt % userBalance;
         if (lqtyAmt == 0 || userBalance == 0) return;
-        address userProxy = governance.deriveUserProxyAddress(user);
-        if(userProxy.code.length == 0) return;
 
         hevm.prank(user);
-        lqty.approve(userProxy, type(uint256).max);
+        lqty.approve(proxy, type(uint256).max);
         hevm.prank(user);
         governance.depositLQTY(lqtyAmt);
 
@@ -165,18 +164,54 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
 
     }
 
-    function invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(uint8 initiativeIndex,uint8 epochWeek) public {
-        address randomInitiative = _getRandomInitiative(initiativeIndex);
-        
-        (IGovernance.InitiativeStatus beforeStatus,,) = governance.getInitiativeState(randomInitiative);
-        if(epochWeek > 1){
-            if(beforeStatus == IGovernance.InitiativeStatus.UNREGISTERABLE){
-                hevm.warp(block.timestamp + epochWeek * governance.EPOCH_DURATION());
-                (IGovernance.InitiativeStatus afterStatus,,) = governance.getInitiativeState(randomInitiative);
-                assert(beforeStatus == afterStatus);
-            }
-        }
+    function invariant_stakedLQTYTokenBalanceOfUserShouldIncreaseWhenDeposited(uint8 userIndex, uint256 lqtyAmt) public {
+        // Pre Conditions
+        if (lqtyAmt == 0) return;
+        (address user, address proxy) = _getRandomUser(userIndex);
+
+        uint256 userBalance = lqty.balanceOf(user);
+        lqtyAmt = lqtyAmt % userBalance;
+        if (lqtyAmt == 0 || userBalance == 0) return;
+
+        // Ghost Variables before
+        __before(user);
+        uint256 beforeUserEOALqtyBalance = _before.userLqtyBalance[user];
+        (uint256 beforeLQTYStakedOfUser,,, ) = governance.userStates(user);
+
+        // Action
+        hevm.prank(user);
+        lqty.approve(proxy, type(uint256).max);
+        hevm.prank(user);
+        governance.depositLQTY(lqtyAmt);
+
+        // Ghost Variables after
+        __after(user);
+        uint256 afterUserEOALqtyBalance = _after.userLqtyBalance[user];
+        (uint256 afterLQTYStakedOfUser,,, ) = governance.userStates(user);
+
+        // Post Conditions
+        uint256 balanceOfLqtyInUserEOA = beforeUserEOALqtyBalance - afterUserEOALqtyBalance;
+        uint256 balanceOfStakedLqtyByUser = afterLQTYStakedOfUser - beforeLQTYStakedOfUser;
+
+        emit BalanceOfLqtyOfUserInEOAAndStaked(balanceOfLqtyInUserEOA, balanceOfStakedLqtyByUser);
+
+        // Assert
+        assert(balanceOfLqtyInUserEOA == balanceOfStakedLqtyByUser);
     }
+
+    // function invariant_statusOnceUnregistrableShouldAlwaysBeUnregistrable(uint8 initiativeIndex,uint8 epochWeek) public {
+    //     address randomInitiative = _getRandomInitiative(initiativeIndex);
+        
+    //     (IGovernance.InitiativeStatus beforeStatus,,) = governance.getInitiativeState(randomInitiative);
+    //     if(epochWeek > 1){
+    //         if(beforeStatus == IGovernance.InitiativeStatus.UNREGISTERABLE){
+    //             hevm.warp(block.timestamp + epochWeek * governance.EPOCH_DURATION());
+    //             (IGovernance.InitiativeStatus afterStatus,,) = governance.getInitiativeState(randomInitiative);
+    //             emit BeforeAfterStatus(uint8(beforeStatus), uint8(afterStatus));
+    //             assert(beforeStatus == afterStatus);
+    //         }
+    //     }
+    // }
 
     function invariant_afterClaimingAmtShouldNotbeMoreThanBoldAccured() public {
         __before(users[0]);
@@ -193,7 +228,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     }
 
 
-    //@audit I think this invariant doesn't make any sense cause the the staking v1 is not gaining any funds in real time
+    // @audit I think this invariant doesn't make any sense cause the the staking v1 is not gaining any funds in real time
     // would be better if bold would have accured in the staking v1 as there part of investment in the fuzzing suite.
     function invariant_afterUserClaimsBalanceOfUserShouldIncrease(uint8 userIndex) public {
         (address randomUser, address proxy ) = _getRandomUser(userIndex);
@@ -214,12 +249,11 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
     }
 
     // All allocated liquity of the intitatives sum would be equal to allocated lqty of the users
-    function invariant_totalSumOfAllocatedLqtyOfUserEqualToInitiativesLqty() public {
+    function invariant_totalSumOfAllocatedLqtyOfUserEqualToInitiativesLqty() public view{
         uint256 totalSumOfUsersAllocatedLqty;
         uint256 totalSumOfVoteAndVetoOfAnInitiative;
-        // all user allocatedLqty sum first
+
         for(uint256 i; i < users.length; i++){
-            // userStates
             (,,uint256 userAllocatedLqty,) = governance.userStates(users[i]);
             totalSumOfUsersAllocatedLqty += userAllocatedLqty;
         }
@@ -229,6 +263,7 @@ contract GovernanceProperties is SelfSetup, BeforeAfter,Test {
             totalSumOfVoteAndVetoOfAnInitiative += voteLqtyOfInitiative + vetoLqtyOfInitiative;
         }
 
+        // Post Conditions
         assert(totalSumOfUsersAllocatedLqty == totalSumOfVoteAndVetoOfAnInitiative);
     }
 

@@ -191,12 +191,11 @@ contract Governance is MultiDelegateCall, UserProxyFactory, ReentrancyGuard, Own
         if (userProxyAddress.code.length == 0) {
             deployUserProxy();
         }
-        // @audit what is this below one 
+
         UserProxy userProxy = UserProxy(payable(userProxyAddress));
 
         // update the vote power trackers
         userStates[msg.sender].unallocatedLQTY += _lqtyAmount;
-        // @audit what is the meaning of unallocatedOffset
         userStates[msg.sender].unallocatedOffset += block.timestamp * _lqtyAmount;
 
         return userProxy;
