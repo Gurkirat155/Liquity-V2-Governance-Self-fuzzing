@@ -2,7 +2,7 @@
 
 A structured fuzzing test suite using Echidna and Foundry to validate invariants in the Liquity v2 Governance contract.
 
-## 🧩 Table of Contents
+## 📁 Folder Structure
 
 Folder Structure
 Setup Instructions
