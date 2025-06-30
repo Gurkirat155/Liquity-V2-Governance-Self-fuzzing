@@ -22,9 +22,9 @@ License
 │   ├── Properties/GovernanceProperties.sol           # Invariant test functions
 │   ├── SelfCryticTester.sol                          # Entry point for Echidna
 │   ├── FoundryTest.sol                               # Manual debugging via Foundry
-|   ├── SelfSetup.sol                                 # Setup File for the project
-|   ├── BeforeAfter.sol                               # Ghost Variables
-|   ├── corpus/                                       # Output folder for coverage, reproducers
+│   ├── SelfSetup.sol                                 # Setup File for the project
+│   ├── BeforeAfter.sol                               # Ghost Variables
+│   ├── corpus/                                       # Output folder for coverage, reproducers
 │   ├── utils                                         # test utilities
 │   └── config.yaml                                   # Echidna config file
 │
@@ -40,6 +40,21 @@ License
 ```bash
   echidna SelfFuzzing/SelfCryticTester.sol --contract SelfCryticTester --config SelfFuzzing/config.yaml
 ```
+
+## 🧠 Understanding Output
+
+- corpus/coverage.html: Visual report of code coverage
+- corpus/reproducers.txt: Minimal sequence of calls that triggered a bug
+
+## ✅ Writing Invariants
+
+Each invariant follows this structure:
+
+- Preconditions: Ensure inputs are valid
+- Action: Execute the test logic
+- Ghost Variables: Track state before/after
+- Postconditions: Assert the expected state
+
 
 ## 🔐 Invariants Explained
 
