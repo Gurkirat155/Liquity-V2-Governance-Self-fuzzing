@@ -1,4 +1,4 @@
-# 📄 Shadow Fuzzing Suite for Liquity v2 Governance
+# 📄 Fuzzing Suite for Liquity v2 Governance
 
 A structured fuzzing test suite using Echidna and Foundry to validate invariants in the Liquity v2 Governance contract.
 
