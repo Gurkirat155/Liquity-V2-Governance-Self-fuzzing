@@ -2,6 +2,13 @@
 
 A structured fuzzing test suite using Echidna and Foundry to validate invariants in the Liquity v2 Governance contract.
 
+## Understanding The Protocol
+If you want to understand the Liquty V2 Governance protocol and see how the fuzzing suite is setup you could go through these articles.
+1. [Liquity V2 Governance Explained](https://gurkirat.hashnode.dev/liquity-v2-governance-explained)
+2. [How to Fuzz Smart Contracts Using Echidna Liquity V2 Governance](https://gurkirat.hashnode.dev/how-to-use-echidna-for-fuzzing)
+
+
+
 ## 📁 Folder Structure
 
 Folder Structure
